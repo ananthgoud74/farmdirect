@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>FarmDirect — Farmer to Customer Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --green-dark:#123524;
+  --green:#1F6E43;
+  --green-mid:#3A8F5F;
+  --green-line:#2D8659;
+  --green-light:#8FD3A8;
+  --mint:#F3FAF5;
+  --mint-2:#E8F5EC;
+  --white:#FFFFFF;
+  --orange:#E8792B;
+  --orange-dark:#C9611B;
+  --orange-light:#FDEBD9;
+  --ink:#16241C;
+  --muted:#5D6E64;
+  --border:#DCEBE0;
+  --danger:#C0392B;
+  --danger-light:#FBE4E1;
+  --gold:#C9962B;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 8px 24px rgba(18,53,36,0.10);
+  --shadow-lg:0 16px 40px rgba(18,53,36,0.16);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Manrope',sans-serif;
+  background:var(--mint);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.font-display{font-family:'Fraunces',serif;}
+.hidden{display:none !important;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+a{color:inherit;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:#C7E2D2;border-radius:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 18px;border-radius:10px;border:none;font-weight:700;font-size:14.5px;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--green);color:#fff;}
+.btn-primary:hover{background:var(--green-dark);}
+.btn-orange{background:var(--orange);color:#fff;}
+.btn-orange:hover{background:var(--orange-dark);}
+.btn-outline{background:#fff;color:var(--green);border:1.5px solid var(--border);}
+.btn-outline:hover{border-color:var(--green);}
+.btn-danger{background:var(--danger-light);color:var(--danger);}
+.btn-danger:hover{background:var(--danger);color:#fff;}
+.btn-ghost{background:transparent;color:var(--muted);}
+.btn-ghost:hover{background:var(--mint-2);}
+.btn-sm{padding:7px 12px;font-size:13px;border-radius:8px;}
+.btn-block{width:100%;}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:16px;}
+.icon-btn:hover{background:var(--mint-2);}
+
+/* ---------- Auth ---------- */
+#authScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 15% 15%, #1F6E43 0%, #123524 55%, #0d271a 100%);
+  padding:24px;
+}
+.auth-wrap{width:100%;max-width:980px;background:var(--white);border-radius:24px;box-shadow:var(--shadow-lg);overflow:hidden;display:grid;grid-template-columns:1.1fr 1.4fr;min-height:560px;position:relative;}
+.auth-side{
+  background:linear-gradient(160deg,#1F6E43,#123524);
+  color:#fff;padding:44px 38px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;
+}
+.auth-side::after{content:"";position:absolute;right:-60px;bottom:-60px;width:220px;height:220px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.auth-side::before{content:"";position:absolute;left:-40px;top:-40px;width:140px;height:140px;background:rgba(232,121,43,0.18);border-radius:50%;}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-size:24px;font-weight:700;}
+.brand .dot{width:10px;height:10px;background:var(--orange);border-radius:50%;display:inline-block;}
+.auth-side h2{font-size:30px;line-height:1.25;margin:26px 0 10px;font-weight:600;}
+.auth-side p{color:#CFE8DA;font-size:14.5px;line-height:1.6;max-width:320px;}
+.auth-stats{display:flex;gap:22px;margin-top:auto;position:relative;z-index:1;}
+.auth-stats div b{display:block;font-size:22px;font-family:'Fraunces',serif;}
+.auth-stats div span{font-size:12px;color:#CFE8DA;}
+.auth-main{padding:42px 44px;overflow-y:auto;max-height:90vh;}
+.portal-toggle{display:flex;background:var(--mint-2);border-radius:12px;padding:4px;margin-bottom:26px;}
+.portal-toggle button{flex:1;padding:10px;border:none;background:transparent;border-radius:9px;font-weight:700;color:var(--muted);font-size:14px;}
+.portal-toggle button.active{background:#fff;color:var(--green);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.auth-form-title{font-size:21px;font-weight:600;margin:0 0 4px;font-family:'Fraunces',serif;}
+.auth-form-sub{color:var(--muted);font-size:13.5px;margin:0 0 22px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:none;}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--border);font-size:14.5px;outline:none;background:#fcfefc;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green-mid);background:#fff;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.auth-tabs-link{margin-top:16px;text-align:center;font-size:13.5px;color:var(--muted);}
+.auth-tabs-link a{color:var(--green);font-weight:700;text-decoration:none;cursor:pointer;}
+.demo-box{margin-top:18px;background:var(--mint-2);border:1px dashed var(--green-light);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--muted);}
+.demo-box b{color:var(--green-dark);}
+.demo-quick{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+
+/* ---------- App shell ---------- */
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+.sidebar{
+  background:linear-gradient(180deg,#123524,#0e2a1c);color:#fff;padding:22px 16px;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar .brand{color:#fff;font-size:19px;margin-bottom:26px;padding:0 8px;}
+.side-section-label{font-size:10.5px;letter-spacing:.04em;color:#7FB999;margin:18px 10px 6px;font-weight:700;}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:#D7ECDF;
+  font-size:14px;font-weight:600;margin-bottom:2px;cursor:pointer;transition:background .12s;
+}
+.nav-item .ic{width:18px;text-align:center;}
+.nav-item:hover{background:rgba(255,255,255,0.06);}
+.nav-item.active{background:var(--orange);color:#fff;}
+.nav-item.sub{padding-left:30px;font-weight:500;font-size:13.5px;}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,0.14);border-radius:999px;padding:1px 8px;font-size:11px;}
+
+.main{padding:0;overflow-x:hidden;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:16px 26px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;
+}
+.topbar-search{flex:1;max-width:420px;position:relative;}
+.topbar-search input{width:100%;padding:10px 14px 10px 36px;border-radius:10px;border:1.5px solid var(--border);font-size:13.8px;background:var(--mint-2);}
+.topbar-search .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--orange-light);color:var(--orange-dark);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;}
+.page{padding:24px 26px 60px;max-width:1400px;}
+.page-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+.page-head h1{font-size:24px;margin:0 0 4px;font-weight:600;}
+.page-head p{margin:0;color:var(--muted);font-size:13.5px;}
+.view{display:none;}
+.view.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ---------- Cards / stat grid ---------- */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+.stat-card .lbl{font-size:12.5px;color:var(--muted);font-weight:700;}
+.stat-card .val{font-family:'Fraunces',serif;font-size:26px;margin:6px 0 2px;color:var(--green-dark);}
+.stat-card .sub{font-size:12px;color:var(--green-mid);font-weight:700;}
+.stat-card.orange .val{color:var(--orange-dark);}
+.panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:20px;}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.panel-head h3{margin:0;font-size:16px;font-weight:700;}
+.two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13.6px;}
+thead th{text-align:left;padding:10px 12px;color:var(--muted);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.02em;border-bottom:2px solid var(--border);white-space:nowrap;}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:hover{background:var(--mint-2);}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;}
+.pill-green{background:#E3F5EA;color:var(--green-dark);}
+.pill-orange{background:var(--orange-light);color:var(--orange-dark);}
+.pill-gray{background:#EEF2EF;color:var(--muted);}
+.pill-red{background:var(--danger-light);color:var(--danger);}
+.pill-gold{background:#FBF1DA;color:var(--gold);}
+.row-actions{display:flex;gap:6px;}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.toolbar input,.toolbar select{padding:9px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13.5px;background:#fff;}
+.chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.chip{padding:8px 15px;border-radius:999px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:700;color:var(--muted);}
+.chip.active{background:var(--green);border-color:var(--green);color:#fff;}
+.pagination{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:14px;font-size:13px;color:var(--muted);}
+
+/* ---------- Product grid (customer) ---------- */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+.pcard{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;}
+.pcard-img{height:118px;display:flex;align-items:center;justify-content:center;font-size:46px;position:relative;overflow:hidden;}
+.pcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.pcard-img .img-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:46px;}
+.pcard-img .wish{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;font-size:15px;z-index:2;}
+.thumb-img{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.thumb-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.thumb-img .img-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.img-upload-row{display:flex;align-items:center;gap:12px;margin-top:6px;}
+.img-upload-preview{width:76px;height:76px;border-radius:12px;object-fit:cover;border:1.5px solid var(--border);background:var(--mint-2);}
+.img-upload-preview-fallback{width:76px;height:76px;border-radius:12px;border:1.5px solid var(--border);background:var(--mint-2);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.pcard-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1;}
+.pcard-cat{font-size:10.5px;color:var(--green-mid);font-weight:800;text-transform:uppercase;letter-spacing:.03em;}
+.pcard-name{font-weight:700;font-size:14.8px;line-height:1.25;}
+.pcard-seller{font-size:11.8px;color:var(--muted);}
+.pcard-price{font-family:'Fraunces',serif;font-size:18px;color:var(--green-dark);margin-top:2px;}
+.pcard-price small{font-size:11px;color:var(--muted);font-family:'Manrope',sans-serif;font-weight:600;}
+.pcard-stock{font-size:11px;color:var(--muted);}
+.qty-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
+.qty-row button{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-weight:800;font-size:15px;line-height:1;}
+.qty-row button:disabled{opacity:.35;}
+.qty-row .qval{flex:1;text-align:center;font-weight:800;font-size:13.5px;}
+.pcard-total{font-size:11.8px;color:var(--muted);}
+.pcard-total b{color:var(--ink);}
+
+/* ---------- Cart ---------- */
+.cart-row{display:grid;grid-template-columns:52px 1.6fr 1fr 1fr 1fr 34px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+.cart-emoji{width:44px;height:44px;border-radius:10px;font-size:22px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.cart-emoji img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cart-emoji .img-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.cart-summary-line{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;color:var(--muted);}
+.cart-summary-line.total{font-weight:800;color:var(--ink);font-size:17px;border-top:1.5px dashed var(--border);margin-top:6px;padding-top:14px;}
+
+/* ---------- Modal ---------- */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,35,25,0.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal{background:#fff;border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal.wide{max-width:820px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2;}
+.modal-head h3{margin:0;font-size:17px;font-family:'Fraunces',serif;}
+.modal-body{padding:20px 22px;}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;}
+.close-x{background:none;border:none;font-size:20px;color:var(--muted);}
+
+/* checkout steps */
+.step-track{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.step-dot{width:26px;height:26px;border-radius:50%;background:var(--mint-2);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+.step-dot.active{background:var(--green);color:#fff;}
+.step-dot.done{background:var(--green-light);color:#0e2a1c;}
+.step-line{flex:1;height:2px;background:var(--border);}
+.pay-option{display:flex;align-items:center;gap:12px;border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;}
+.pay-option.selected{border-color:var(--green);background:var(--mint-2);}
+.pay-option .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
+.pay-option.selected .radio{border-color:var(--green);background:radial-gradient(var(--green) 0 45%, transparent 50%);}
+#mapPicker{height:260px;border-radius:12px;overflow:hidden;border:1.5px solid var(--border);}
+.loc-option-btns{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.loc-result{font-size:13px;background:var(--mint-2);border-radius:10px;padding:10px 12px;margin-top:10px;}
+.geo-suggest{border:1px solid var(--border);border-radius:10px;margin-top:6px;max-height:160px;overflow-y:auto;}
+.geo-suggest div{padding:9px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border);}
+.geo-suggest div:hover{background:var(--mint-2);}
+
+/* tracking */
+.track-line{display:flex;justify-content:space-between;position:relative;margin:24px 0 8px;}
+.track-line::before{content:"";position:absolute;top:13px;left:5%;right:5%;height:3px;background:var(--border);z-index:0;}
+.track-step{flex:1;text-align:center;position:relative;z-index:1;}
+.track-step .dot{width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--border);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);}
+.track-step.done .dot{background:var(--green);border-color:var(--green);color:#fff;}
+.track-step.current .dot{background:var(--orange);border-color:var(--orange);color:#fff;}
+.track-step span{font-size:11px;color:var(--muted);font-weight:700;}
+.track-step.done span,.track-step.current span{color:var(--ink);}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state .big{font-size:44px;margin-bottom:10px;}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--green-dark);color:#fff;padding:13px 20px;border-radius:12px;box-shadow:var(--shadow-lg);z-index:400;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;}
+.toast.error{background:var(--danger);}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.bar-chart{display:flex;align-items:flex-end;gap:10px;height:160px;padding-top:10px;}
+.bar-chart .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+.bar-chart .bar{width:100%;max-width:34px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--green-mid),var(--green));}
+.bar-chart .bar-lbl{font-size:10.5px;color:var(--muted);margin-top:6px;}
+.bar-chart .bar-val{font-size:10.5px;font-weight:800;color:var(--green-dark);margin-bottom:4px;}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 0;}
+#qrcodeBox{padding:14px;background:#fff;border:1px solid var(--border);border-radius:14px;}
+.upi-amount{font-family:'Fraunces',serif;font-size:30px;color:var(--green-dark);}
+
+/* ---------- Language switcher ---------- */
+.lang-switch{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:16px;}
+.lang-switch label{font-size:12px;font-weight:700;color:var(--muted);}
+.lang-switch select{
+  padding:8px 28px 8px 12px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--mint-2);color:var(--ink);font-size:13px;font-weight:700;outline:none;
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%235D6E64'><path d='M5.5 7.5l4.5 5 4.5-5z'/></svg>");
+  background-repeat:no-repeat;background-position:right 8px center;background-size:14px;
+}
+.app-lang-switch{display:flex;align-items:center;gap:6px;}
+.app-lang-switch select{padding:8px 26px 8px 10px;border-radius:9px;border:1.5px solid var(--border);background:#fff;font-size:12.8px;font-weight:700;color:var(--ink);outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%235D6E64'><path d='M5.5 7.5l4.5 5 4.5-5z'/></svg>");
+  background-repeat:no-repeat;background-position:right 6px center;background-size:14px;}
+
+@media(max-width:980px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{position:fixed;left:-260px;width:250px;z-index:100;transition:left .2s;height:100vh;}
+  .sidebar.open{left:0;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .two-col{grid-template-columns:1fr;}
+  .auth-wrap{grid-template-columns:1fr;}
+  .auth-side{display:none;}
+  .cart-row{grid-template-columns:1fr;text-align:left;}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="authScreen">
+  <div class="auth-wrap">
+    <div class="auth-side">
+      <div>
+        <div class="brand"><span class="dot"></span> FarmDirect</div>
+        <h2 id="authSideTitle" data-i18n="authSideTitle">Fresh produce,<br>straight from the farm.</h2>
+        <p id="authSideSub" data-i18n="authSideSub">A marketplace connecting local farmers directly to customers — no middlemen, fair prices, and same-day freshness.</p>
+      </div>
+      <div class="auth-stats">
+        <div><b id="statSellersCount">--</b><span data-i18n="farmers">Farmers</span></div>
+        <div><b id="statProductsCount">--</b><span data-i18n="products">Products</span></div>
+        <div><b id="statOrdersCount">--</b><span data-i18n="orders">Orders</span></div>
+      </div>
+    </div>
+    <div class="auth-main">
+      <div class="lang-switch">
+        <label for="langSelect" data-i18n="chooseLanguage">🌐 Language</label>
+        <select id="langSelect" onchange="setLanguage(this.value)"></select>
+      </div>
+      <div class="portal-toggle">
+        <button id="toggleSellerBtn" onclick="setAuthPortal('seller')">🌾 <span data-i18n="imSeller">I'm a Seller</span></button>
+        <button id="toggleCustomerBtn" onclick="setAuthPortal('customer')">🛒 <span data-i18n="imCustomer">I'm a Customer</span></button>
+      </div>
+
+      <!-- Seller login -->
+      <div id="sellerLoginForm" class="auth-form">
+        <div class="auth-form-title" data-i18n="sellerLogin">Seller Login</div>
+        <div class="auth-form-sub" data-i18n="sellerLoginSub">Manage your products, stock and orders.</div>
+        <div class="field"><label data-i18n="phoneOrEmail">Phone or Email</label><input id="sellerLoginId" placeholder="e.g. 9876500001 or ramulu@farmdirect.demo"></div>
+        <div class="field"><label data-i18n="password">Password</label><input id="sellerLoginPass" type="password" placeholder="demo123"></div>
+        <button class="btn btn-primary btn-block" onclick="handleSellerLogin()" data-i18n="loginToSellerPortal">Login to Seller Portal</button>
+        <div class="demo-box"><b data-i18n="demoTip">Demo tip:</b> <span data-i18n="demoTipSellerText">any seller password is</span> <b>demo123</b>.
+          <div class="demo-quick">
+            <button class="btn btn-outline btn-sm" onclick="quickSellerLogin()">⚡ <span data-i18n="quickDemoLogin">Quick demo login</span></button>
+            <button class="btn btn-ghost btn-sm" onclick="showSellerRegister()"><span data-i18n="newSellerRegister">New seller? Register →</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller register -->
+      <div id="sellerRegisterForm" class="auth-form hidden">
+        <div class="auth-form-title" data-i18n="registerAsSeller">Register as Seller</div>
+        <div class="auth-form-sub" data-i18n="registerAsSellerSub">Join FarmDirect and start selling to customers directly.</div>
+        <div class="field-row">
+          <div class="field"><label data-i18n="fullName">Full Name</label><input id="regSellerName" placeholder="Your name"></div>
+          <div class="field"><label data-i18n="farmName">Farm Name</label><input id="regSellerFarm" placeholder="e.g. Green Valley Farm"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label data-i18n="phone">Phone</label><input id="regSellerPhone" placeholder="10-digit number"></div>
+          <div class="field"><label data-i18n="email">Email</label><input id="regSellerEmail" placeholder="you@example.com"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label data-i18n="villageTown">Village / Town</label><input id="regSellerLocation" placeholder="e.g. Kurnool, AP"></div>
+          <div class="field"><label data-i18n="upiId">UPI ID</label><input id="regSellerUpi" placeholder="you@upi"></div>
+        </div>
+        <div class="field"><label data-i18n="password">Password</label><input id="regSellerPass" type="password" placeholder="Choose a password"></div>
+        <button class="btn btn-primary btn-block" onclick="handleSellerRegister()" data-i18n="createSellerAccount">Create Seller Account</button>
+        <div class="auth-tabs-link"><span data-i18n="alreadyHaveAccount">Already have an account?</span> <a onclick="showSellerLoginForm()" data-i18n="login">Login</a></div>
+      </div>
+
+      <!-- Customer login -->
+      <div id="customerLoginForm" class="auth-form hidden">
+        <div class="auth-form-title" data-i18n="customerLogin">Customer Login</div>
+        <div class="auth-form-sub" data-i18n="customerLoginSub">Shop fresh produce from local farmers.</div>
+        <div class="field"><label data-i18n="phoneOrEmail">Phone or Email</label><input id="customerLoginId" placeholder="e.g. your phone number"></div>
+        <div class="field"><label data-i18n="password">Password</label><input id="customerLoginPass" type="password" placeholder="demo123"></div>
+        <button class="btn btn-primary btn-block" onclick="handleCustomerLogin()" data-i18n="loginToShop">Login to Shop</button>
+        <div class="demo-box"><b data-i18n="demoTip">Demo tip:</b> <span data-i18n="demoTipCustomerText">any demo customer password is</span> <b>demo123</b>.
+          <div class="demo-quick">
+            <button class="btn btn-outline btn-sm" onclick="quickCustomerLogin()">⚡ <span data-i18n="quickDemoLogin">Quick demo login</span></button>
+            <button class="btn btn-ghost btn-sm" onclick="showCustomerRegister()"><span data-i18n="newHereRegister">New here? Register →</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer register -->
+      <div id="customerRegisterForm" class="auth-form hidden">
+        <div class="auth-form-title" data-i18n="createYourAccount">Create your account</div>
+        <div class="auth-form-sub" data-i18n="createYourAccountSub">Sign up to start ordering fresh produce.</div>
+        <div class="field-row">
+          <div class="field"><label data-i18n="fullName">Full Name</label><input id="regCustName" placeholder="Your name"></div>
+          <div class="field"><label data-i18n="phone">Phone</label><input id="regCustPhone" placeholder="10-digit number"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label data-i18n="email">Email</label><input id="regCustEmail" placeholder="you@example.com"></div>
+          <div class="field"><label data-i18n="cityTown">City / Town</label><input id="regCustLocation" placeholder="e.g. Kurnool, AP"></div>
+        </div>
+        <div class="field"><label data-i18n="password">Password</label><input id="regCustPass" type="password" placeholder="Choose a password"></div>
+        <button class="btn btn-primary btn-block" onclick="handleCustomerRegister()" data-i18n="createAccount">Create Account</button>
+        <div class="auth-tabs-link"><span data-i18n="alreadyHaveAccount">Already have an account?</span> <a onclick="showCustomerLoginForm()" data-i18n="login">Login</a></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ SELLER APP ============ -->
+<div id="sellerApp" class="app hidden">
+  <div class="sidebar" id="sellerSidebar">
+    <div class="brand"><span class="dot" style="width:8px;height:8px;background:#E8792B;border-radius:50%;display:inline-block;"></span> FarmDirect</div>
+    <div class="side-section-label" data-i18n="sellerPortal">Seller Portal</div>
+    <div class="nav-item active" data-view="dashboard" onclick="sellerNav('dashboard')"><span class="ic">🏠</span> <span data-i18n="dashboard">Dashboard</span></div>
+    <div class="nav-item" data-view="products" onclick="sellerNav('products')"><span class="ic">📦</span> <span data-i18n="myProducts">Products</span></div>
+    <div class="nav-item sub" data-view="addProduct" onclick="sellerNav('addProduct')"><span class="ic">＋</span> <span data-i18n="addProduct">Add Product</span></div>
+    <div class="nav-item sub" data-view="deletedProducts" onclick="sellerNav('deletedProducts')"><span class="ic">🗑</span> <span data-i18n="deletedProducts">Deleted Products</span></div>
+    <div class="nav-item" data-view="stock" onclick="sellerNav('stock')"><span class="ic">📊</span> <span data-i18n="stockManagement">Stock Management</span></div>
+    <div class="nav-item" data-view="orders" onclick="sellerNav('orders')"><span class="ic">🛒</span> <span data-i18n="ordersNav">Orders</span></div>
+    <div class="nav-item" data-view="customers" onclick="sellerNav('customers')"><span class="ic">👥</span> <span data-i18n="customersNav">Customers</span></div>
+    <div class="nav-item" data-view="analytics" onclick="sellerNav('analytics')"><span class="ic">📈</span> <span data-i18n="salesAnalytics">Sales Analytics</span></div>
+    <div class="side-section-label" data-i18n="account">Account</div>
+    <div class="nav-item" data-view="payments" onclick="sellerNav('payments')"><span class="ic">💳</span> <span data-i18n="paymentsUpi">Payments (UPI)</span></div>
+    <div class="nav-item" data-view="location" onclick="sellerNav('location')"><span class="ic">📍</span> <span data-i18n="farmLocation">Farm Location</span></div>
+    <div class="nav-item" data-view="profile" onclick="sellerNav('profile')"><span class="ic">👤</span> <span data-i18n="profile">Profile</span></div>
+    <div class="nav-item" data-view="settings" onclick="sellerNav('settings')"><span class="ic">⚙️</span> <span data-i18n="settings">Settings</span></div>
+    <div class="nav-item" onclick="logout()"><span class="ic">🚪</span> <span data-i18n="logout">Logout</span></div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="icon-btn hide-desktop" onclick="toggleSidebar('sellerSidebar')" style="display:none">☰</button>
+      <div class="topbar-search"><span class="ic">🔎</span><input id="sellerTopSearch" data-i18n-ph="sellerSearchPh" placeholder="Search your products, orders, customers..." oninput="sellerGlobalSearch(this.value)"></div>
+      <div class="topbar-right">
+        <span class="app-lang-switch"><select id="langSelectApp" onchange="setLanguage(this.value)"></select></span>
+        <span class="pill pill-orange" id="sellerPendingBadge">0 pending</span>
+        <div class="avatar" id="sellerAvatar">S</div>
+      </div>
+    </div>
+    <div class="page">
+      <div id="view-dashboard" class="view active"></div>
+      <div id="view-products" class="view"></div>
+      <div id="view-addProduct" class="view"></div>
+      <div id="view-deletedProducts" class="view"></div>
+      <div id="view-stock" class="view"></div>
+      <div id="view-orders" class="view"></div>
+      <div id="view-customers" class="view"></div>
+      <div id="view-analytics" class="view"></div>
+      <div id="view-payments" class="view"></div>
+      <div id="view-location" class="view"></div>
+      <div id="view-profile" class="view"></div>
+      <div id="view-settings" class="view"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CUSTOMER APP ============ -->
+<div id="customerApp" class="app hidden">
+  <div class="sidebar" id="customerSidebar">
+    <div class="brand"><span class="dot" style="width:8px;height:8px;background:#E8792B;border-radius:50%;display:inline-block;"></span> FarmDirect</div>
+    <div class="side-section-label" data-i18n="shop">Shop</div>
+    <div class="nav-item active" data-view="home" onclick="customerNav('home')"><span class="ic">🏠</span> <span data-i18n="home">Home</span></div>
+    <div class="nav-item" data-view="shop" onclick="customerNav('shop')"><span class="ic">🛍️</span> <span data-i18n="shop">Shop</span></div>
+    <div class="nav-item" data-view="categories" onclick="customerNav('categories')"><span class="ic">📂</span> <span data-i18n="categories">Categories</span></div>
+    <div class="nav-item" data-view="cart" onclick="customerNav('cart')"><span class="ic">🛒</span> <span data-i18n="cart">Cart</span> <span class="nav-badge" id="cartCountBadge">0</span></div>
+    <div class="side-section-label" data-i18n="account">Account</div>
+    <div class="nav-item" data-view="orders" onclick="customerNav('orders')"><span class="ic">📦</span> <span data-i18n="myOrders">My Orders</span></div>
+    <div class="nav-item" data-view="locations" onclick="customerNav('locations')"><span class="ic">📍</span> <span data-i18n="myDeliveryLocations">My Delivery Locations</span></div>
+    <div class="nav-item" data-view="paymentsC" onclick="customerNav('paymentsC')"><span class="ic">💳</span> <span data-i18n="paymentsNav">Payments</span></div>
+    <div class="nav-item" data-view="wishlist" onclick="customerNav('wishlist')"><span class="ic">❤️</span> <span data-i18n="wishlist">Wishlist</span></div>
+    <div class="nav-item" data-view="profileC" onclick="customerNav('profileC')"><span class="ic">👤</span> <span data-i18n="profile">Profile</span></div>
+    <div class="nav-item" onclick="logout()"><span class="ic">🚪</span> <span data-i18n="logout">Logout</span></div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-search"><span class="ic">🔎</span><input id="customerTopSearch" data-i18n-ph="customerSearchPh" placeholder="Search for tomatoes, mangoes, rice..." oninput="customerSearchInput(this.value)"></div>
+      <div class="topbar-right">
+        <span class="app-lang-switch"><select id="langSelectAppC" onchange="setLanguage(this.value)"></select></span>
+        <button class="icon-btn" onclick="customerNav('cart')" title="Cart">🛒</button>
+        <div class="avatar" id="customerAvatar">C</div>
+      </div>
+    </div>
+    <div class="page">
+      <div id="view-c-home" class="view active"></div>
+      <div id="view-c-shop" class="view"></div>
+      <div id="view-c-categories" class="view"></div>
+      <div id="view-c-cart" class="view"></div>
+      <div id="view-c-orders" class="view"></div>
+      <div id="view-c-locations" class="view"></div>
+      <div id="view-c-paymentsC" class="view"></div>
+      <div id="view-c-wishlist" class="view"></div>
+      <div id="view-c-profileC" class="view"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ==========================================================================
+   FARMDIRECT — CONFIG
+   ========================================================================== */
+const CONFIG = {
+  GOOGLE_MAPS_API_KEY: "", // <-- put a real key here to switch to Google Maps JS API
+  DELIVERY_FEE: 30,
+  DEMO_PASSWORD: "demo123"
+};
+
+/* ==========================================================================
+   I18N — LANGUAGE SWITCHING
+   ========================================================================== */
+const LANGUAGES = [
+  {code:"en", label:"English"},
+  {code:"hi", label:"हिन्दी (Hindi)"},
+  {code:"te", label:"తెలుగు (Telugu)"},
+  {code:"ta", label:"தமிழ் (Tamil)"},
+  {code:"kn", label:"ಕನ್ನಡ (Kannada)"},
+  {code:"mr", label:"मराठी (Marathi)"}
+];
+const I18N = {
+  chooseLanguage:{en:"🌐 Language",hi:"🌐 भाषा",te:"🌐 భాష",ta:"🌐 மொழி",kn:"🌐 ಭಾಷೆ",mr:"🌐 भाषा"},
+  imSeller:{en:"I'm a Seller",hi:"मैं विक्रेता हूं",te:"నేను విక్రేతని",ta:"நான் ஒரு விற்பனையாளர்",kn:"ನಾನು ಮಾರಾಟಗಾರ",mr:"मी विक्रेता आहे"},
+  imCustomer:{en:"I'm a Customer",hi:"मैं ग्राहक हूं",te:"నేను వినియోగదారుడిని",ta:"நான் ஒரு வாடிக்கையாளர்",kn:"ನಾನು ಗ್ರಾಹಕ",mr:"मी ग्राहक आहे"},
+  sellerLogin:{en:"Seller Login",hi:"विक्रेता लॉगिन",te:"విక్రేత లాగిన్",ta:"விற்பனையாளர் உள்நுழைவு",kn:"ಮಾರಾಟಗಾರ ಲಾಗಿನ್",mr:"विक्रेता लॉगिन"},
+  sellerLoginSub:{en:"Manage your products, stock and orders.",hi:"अपने उत्पाद, स्टॉक और ऑर्डर प्रबंधित करें।",te:"మీ ఉత్పత్తులు, స్టాక్ మరియు ఆర్డర్‌లను నిర్వహించండి.",ta:"உங்கள் தயாரிப்புகள், சரக்கு மற்றும் ஆர்டர்களை நிர்வகிக்கவும்.",kn:"ನಿಮ್ಮ ಉತ್ಪನ್ನಗಳು, ಸ್ಟಾಕ್ ಮತ್ತು ಆರ್ಡರ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ.",mr:"तुमची उत्पादने, स्टॉक आणि ऑर्डर व्यवस्थापित करा."},
+  phoneOrEmail:{en:"Phone or Email",hi:"फ़ोन या ईमेल",te:"ఫోన్ లేదా ఇమెయిల్",ta:"தொலைபேசி அல்லது மின்னஞ்சல்",kn:"ಫೋನ್ ಅಥವಾ ಇಮೇಲ್",mr:"फोन किंवा ईमेल"},
+  password:{en:"Password",hi:"पासवर्ड",te:"పాస్‌వర్డ్",ta:"கடவுச்சொல்",kn:"ಪಾಸ್‌ವರ್ಡ್",mr:"पासवर्ड"},
+  loginToSellerPortal:{en:"Login to Seller Portal",hi:"विक्रेता पोर्टल में लॉगिन करें",te:"విక్రేత పోర్టల్‌కి లాగిన్ అవ్వండి",ta:"விற்பனையாளர் போர்ட்டலில் உள்நுழையவும்",kn:"ಮಾರಾಟಗಾರ ಪೋರ್ಟಲ್‌ಗೆ ಲಾಗಿನ್ ಮಾಡಿ",mr:"विक्रेता पोर्टलमध्ये लॉगिन करा"},
+  demoTip:{en:"Demo tip:",hi:"डेमो टिप:",te:"డెమో చిట్కా:",ta:"டெமோ குறிப்பு:",kn:"ಡೆಮೊ ಸಲಹೆ:",mr:"डेमो टिप:"},
+  demoTipSellerText:{en:"any seller password is",hi:"किसी भी विक्रेता का पासवर्ड है",te:"ఏ విక్రేత పాస్‌వర్డ్ అయినా",ta:"எந்த விற்பனையாளர் கடவுச்சொல்லும்",kn:"ಯಾವುದೇ ಮಾರಾಟಗಾರ ಪಾಸ್‌ವರ್ಡ್",mr:"कोणताही विक्रेता पासवर्ड आहे"},
+  demoTipCustomerText:{en:"any demo customer password is",hi:"किसी भी डेमो ग्राहक का पासवर्ड है",te:"ఏ డెమో వినియోగదారు పాస్‌వర్డ్ అయినా",ta:"எந்த டெமோ வாடிக்கையாளர் கடவுச்சொல்லும்",kn:"ಯಾವುದೇ ಡೆಮೊ ಗ್ರಾಹಕ ಪಾಸ್‌ವರ್ಡ್",mr:"कोणताही डेमो ग्राहक पासवर्ड आहे"},
+  quickDemoLogin:{en:"Quick demo login",hi:"त्वरित डेमो लॉगिन",te:"త్వరిత డెమో లాగిన్",ta:"விரைவு டெமோ உள்நுழைவு",kn:"ತ್ವರಿತ ಡೆಮೊ ಲಾಗಿನ್",mr:"जलद डेमो लॉगिन"},
+  newSellerRegister:{en:"New seller? Register →",hi:"नए विक्रेता? पंजीकरण करें →",te:"కొత్త విక్రేతా? నమోదు చేసుకోండి →",ta:"புதிய விற்பனையாளரா? பதிவு செய்யவும் →",kn:"ಹೊಸ ಮಾರಾಟಗಾರರೇ? ನೋಂದಣಿ ಮಾಡಿ →",mr:"नवीन विक्रेता? नोंदणी करा →"},
+  registerAsSeller:{en:"Register as Seller",hi:"विक्रेता के रूप में पंजीकरण करें",te:"విక్రేతగా నమోదు చేసుకోండి",ta:"விற்பனையாளராக பதிவு செய்யவும்",kn:"ಮಾರಾಟಗಾರರಾಗಿ ನೋಂದಾಯಿಸಿ",mr:"विक्रेता म्हणून नोंदणी करा"},
+  registerAsSellerSub:{en:"Join FarmDirect and start selling to customers directly.",hi:"FarmDirect से जुड़ें और सीधे ग्राहकों को बेचना शुरू करें।",te:"FarmDirectలో చేరండి మరియు నేరుగా వినియోగదారులకు అమ్మడం ప్రారంభించండి.",ta:"FarmDirect இணைந்து வாடிக்கையாளர்களுக்கு நேரடியாக விற்பனை செய்யத் தொடங்குங்கள்.",kn:"FarmDirect ಸೇರಿ ಗ್ರಾಹಕರಿಗೆ ನೇರವಾಗಿ ಮಾರಾಟ ಮಾಡಲು ಪ್ರಾರಂಭಿಸಿ.",mr:"FarmDirect मध्ये सामील व्हा आणि ग्राहकांना थेट विक्री सुरू करा."},
+  fullName:{en:"Full Name",hi:"पूरा नाम",te:"పూర్తి పేరు",ta:"முழு பெயர்",kn:"ಪೂರ್ಣ ಹೆಸರು",mr:"पूर्ण नाव"},
+  farmName:{en:"Farm Name",hi:"फार्म का नाम",te:"ఫారం పేరు",ta:"பண்ணை பெயர்",kn:"ಫಾರ್ಮ್ ಹೆಸರು",mr:"शेताचे नाव"},
+  phone:{en:"Phone",hi:"फ़ोन",te:"ఫోన్",ta:"தொலைபேசி",kn:"ಫೋನ್",mr:"फोन"},
+  email:{en:"Email",hi:"ईमेल",te:"ఇమెయిల్",ta:"மின்னஞ்சல்",kn:"ಇಮೇಲ್",mr:"ईमेल"},
+  villageTown:{en:"Village / Town",hi:"गांव / शहर",te:"గ్రామం / పట్టణం",ta:"கிராமம் / நகரம்",kn:"ಹಳ್ಳಿ / ಪಟ್ಟಣ",mr:"गाव / शहर"},
+  upiId:{en:"UPI ID",hi:"UPI आईडी",te:"UPI ID",ta:"UPI ஐடி",kn:"UPI ಐಡಿ",mr:"UPI आयडी"},
+  createSellerAccount:{en:"Create Seller Account",hi:"विक्रेता खाता बनाएं",te:"విక్రేత ఖాతాను సృష్టించండి",ta:"விற்பனையாளர் கணக்கை உருவாக்கவும்",kn:"ಮಾರಾಟಗಾರ ಖಾತೆ ರಚಿಸಿ",mr:"विक्रेता खाते तयार करा"},
+  alreadyHaveAccount:{en:"Already have an account?",hi:"पहले से खाता है?",te:"ఇప్పటికే ఖాతా ఉందా?",ta:"ஏற்கனவே கணக்கு உள்ளதா?",kn:"ಈಗಾಗಲೇ ಖಾತೆ ಇದೆಯೇ?",mr:"आधीच खाते आहे?"},
+  login:{en:"Login",hi:"लॉगिन",te:"లాగిన్",ta:"உள்நுழைவு",kn:"ಲಾಗಿನ್",mr:"लॉगिन"},
+  customerLogin:{en:"Customer Login",hi:"ग्राहक लॉगिन",te:"వినియోగదారు లాగిన్",ta:"வாடிக்கையாளர் உள்நுழைவு",kn:"ಗ್ರಾಹಕ ಲಾಗಿನ್",mr:"ग्राहक लॉगिन"},
+  customerLoginSub:{en:"Shop fresh produce from local farmers.",hi:"स्थानीय किसानों से ताज़ा उपज खरीदें।",te:"స్థానిక రైతుల నుండి తాజా ఉత్పత్తులను కొనుగోలు చేయండి.",ta:"உள்ளூர் விவசாயிகளிடமிருந்து புதிய பொருட்களை வாங்குங்கள்.",kn:"ಸ್ಥಳೀಯ ರೈತರಿಂದ ತಾಜಾ ಉತ್ಪನ್ನಗಳನ್ನು ಖರೀದಿಸಿ.",mr:"स्थानिक शेतकऱ्यांकडून ताजा माल खरेदी करा."},
+  loginToShop:{en:"Login to Shop",hi:"खरीदारी के लिए लॉगिन करें",te:"షాప్ చేయడానికి లాగిన్ అవ్వండి",ta:"கடையில் உள்நுழையவும்",kn:"ಶಾಪ್‌ಗೆ ಲಾಗಿನ್ ಮಾಡಿ",mr:"खरेदीसाठी लॉगिन करा"},
+  newHereRegister:{en:"New here? Register →",hi:"यहां नए हैं? पंजीकरण करें →",te:"ఇక్కడ కొత్తా? నమోదు చేసుకోండి →",ta:"இங்கே புதியவரா? பதிவு செய்யவும் →",kn:"ಇಲ್ಲಿ ಹೊಸಬರೇ? ನೋಂದಣಿ ಮಾಡಿ →",mr:"इथे नवीन आहात? नोंदणी करा →"},
+  createYourAccount:{en:"Create your account",hi:"अपना खाता बनाएं",te:"మీ ఖాతాను సృష్టించండి",ta:"உங்கள் கணக்கை உருவாக்கவும்",kn:"ನಿಮ್ಮ ಖಾತೆ ರಚಿಸಿ",mr:"तुमचे खाते तयार करा"},
+  createYourAccountSub:{en:"Sign up to start ordering fresh produce.",hi:"ताज़ा उपज ऑर्डर करना शुरू करने के लिए साइन अप करें।",te:"తాజా ఉత్పత్తులను ఆర్డర్ చేయడం ప్రారంభించడానికి సైన్ అప్ చేయండి.",ta:"புதிய பொருட்களை ஆர்டர் செய்யத் தொடங்க பதிவு செய்யவும்.",kn:"ತಾಜಾ ಉತ್ಪನ್ನಗಳನ್ನು ಆರ್ಡರ್ ಮಾಡಲು ಸೈನ್ ಅಪ್ ಮಾಡಿ.",mr:"ताजा माल ऑर्डर करण्यासाठी साइन अप करा."},
+  cityTown:{en:"City / Town",hi:"शहर / नगर",te:"నగరం / పట్టణం",ta:"நகரம் / ஊர்",kn:"ನಗರ / ಪಟ್ಟಣ",mr:"शहर / गाव"},
+  createAccount:{en:"Create Account",hi:"खाता बनाएं",te:"ఖాతాను సృష్టించండి",ta:"கணக்கை உருவாக்கவும்",kn:"ಖಾತೆ ರಚಿಸಿ",mr:"खाते तयार करा"},
+  authSideTitle:{en:"Fresh produce,<br>straight from the farm.",hi:"ताज़ा उपज,<br>सीधे खेत से।",te:"తాజా ఉత్పత్తులు,<br>నేరుగా పొలం నుండి.",ta:"புதிய பொருட்கள்,<br>நேரடியாக பண்ணையிலிருந்து.",kn:"ತಾಜಾ ಉತ್ಪನ್ನಗಳು,<br>ನೇರವಾಗಿ ಹೊಲದಿಂದ.",mr:"ताजा माल,<br>थेट शेतातून."},
+  authSideSub:{en:"A marketplace connecting local farmers directly to customers — no middlemen, fair prices, and same-day freshness.",hi:"स्थानीय किसानों को सीधे ग्राहकों से जोड़ने वाला बाज़ार — कोई बिचौलिया नहीं, उचित मूल्य, और उसी दिन की ताज़गी।",te:"స్థానిక రైతులను నేరుగా వినియోగదారులతో కలిపే మార్కెట్‌ప్లేస్ — మధ్యవర్తులు లేరు, న్యాయమైన ధరలు, అదే రోజు తాజాదనం.",ta:"உள்ளூர் விவசாயிகளை நேரடியாக வாடிக்கையாளர்களுடன் இணைக்கும் சந்தை — இடைத்தரகர் இல்லை, நியாயமான விலைகள், அன்றே புதிய தன்மை.",kn:"ಸ್ಥಳೀಯ ರೈತರನ್ನು ನೇರವಾಗಿ ಗ್ರಾಹಕರೊಂದಿಗೆ ಸಂಪರ್ಕಿಸುವ ಮಾರುಕಟ್ಟೆ — ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲ, ನ್ಯಾಯಯುತ ಬೆಲೆಗಳು, ಅದೇ ದಿನದ ತಾಜಾತನ.",mr:"स्थानिक शेतकऱ्यांना थेट ग्राहकांशी जोडणारे बाजारपेठ — मध्यस्थ नाही, वाजवी किंमती, आणि त्याच दिवशी ताजेपणा."},
+  farmers:{en:"Farmers",hi:"किसान",te:"రైతులు",ta:"விவசாயிகள்",kn:"ರೈತರು",mr:"शेतकरी"},
+  products:{en:"Products",hi:"उत्पाद",te:"ఉత్పత్తులు",ta:"தயாரிப்புகள்",kn:"ಉತ್ಪನ್ನಗಳು",mr:"उत्पादने"},
+  orders:{en:"Orders",hi:"ऑर्डर",te:"ఆర్డర్లు",ta:"ஆர்டர்கள்",kn:"ಆರ್ಡರ್‌ಗಳು",mr:"ऑर्डर"},
+  sellerPortal:{en:"Seller Portal",hi:"विक्रेता पोर्टल",te:"విక్రేత పోర్టల్",ta:"விற்பனையாளர் போர்ட்டல்",kn:"ಮಾರಾಟಗಾರ ಪೋರ್ಟಲ್",mr:"विक्रेता पोर्टल"},
+  dashboard:{en:"Dashboard",hi:"डैशबोर्ड",te:"డాష్‌బోర్డ్",ta:"டாஷ்போர்டு",kn:"ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",mr:"डॅशबोर्ड"},
+  myProducts:{en:"Products",hi:"उत्पाद",te:"ఉత్పత్తులు",ta:"தயாரிப்புகள்",kn:"ಉತ್ಪನ್ನಗಳು",mr:"उत्पादने"},
+  addProduct:{en:"Add Product",hi:"उत्पाद जोड़ें",te:"ఉత్పత్తిని జోడించండి",ta:"தயாரிப்பைச் சேர்க்கவும்",kn:"ಉತ್ಪನ್ನ ಸೇರಿಸಿ",mr:"उत्पादन जोडा"},
+  deletedProducts:{en:"Deleted Products",hi:"हटाए गए उत्पाद",te:"తొలగించిన ఉత్పత్తులు",ta:"நீக்கப்பட்ட தயாரிப்புகள்",kn:"ಅಳಿಸಿದ ಉತ್ಪನ್ನಗಳು",mr:"हटवलेली उत्पादने"},
+  stockManagement:{en:"Stock Management",hi:"स्टॉक प्रबंधन",te:"స్టాక్ నిర్వహణ",ta:"சரக்கு மேலாண்மை",kn:"ಸ್ಟಾಕ್ ನಿರ್ವಹಣೆ",mr:"स्टॉक व्यवस्थापन"},
+  ordersNav:{en:"Orders",hi:"ऑर्डर",te:"ఆర్డర్లు",ta:"ஆர்டர்கள்",kn:"ಆರ್ಡರ್‌ಗಳು",mr:"ऑर्डर"},
+  customersNav:{en:"Customers",hi:"ग्राहक",te:"వినియోగదారులు",ta:"வாடிக்கையாளர்கள்",kn:"ಗ್ರಾಹಕರು",mr:"ग्राहक"},
+  salesAnalytics:{en:"Sales Analytics",hi:"बिक्री विश्लेषण",te:"సేల్స్ అనలిటిక్స్",ta:"விற்பனை பகுப்பாய்வு",kn:"ಮಾರಾಟ ವಿಶ್ಲೇಷಣೆ",mr:"विक्री विश्लेषण"},
+  account:{en:"Account",hi:"खाता",te:"ఖాతా",ta:"கணக்கு",kn:"ಖಾತೆ",mr:"खाते"},
+  paymentsUpi:{en:"Payments (UPI)",hi:"भुगतान (UPI)",te:"చెల్లింపులు (UPI)",ta:"கட்டணங்கள் (UPI)",kn:"ಪಾವತಿಗಳು (UPI)",mr:"पेमेंट्स (UPI)"},
+  farmLocation:{en:"Farm Location",hi:"फार्म का स्थान",te:"ఫారం స్థానం",ta:"பண்ணை இருப்பிடம்",kn:"ಫಾರ್ಮ್ ಸ್ಥಳ",mr:"शेताचे ठिकाण"},
+  profile:{en:"Profile",hi:"प्रोफ़ाइल",te:"ప్రొఫైల్",ta:"சுயவிவரம்",kn:"ಪ್ರೊಫೈಲ್",mr:"प्रोफाइल"},
+  settings:{en:"Settings",hi:"सेटिंग्स",te:"సెట్టింగ్‌లు",ta:"அமைப்புகள்",kn:"ಸೆಟ್ಟಿಂಗ್‌ಗಳು",mr:"सेटिंग्ज"},
+  logout:{en:"Logout",hi:"लॉगआउट",te:"లాగ్ అవుట్",ta:"வெளியேறு",kn:"ಲಾಗ್ ಔಟ್",mr:"लॉगआउट"},
+  sellerSearchPh:{en:"Search your products, orders, customers...",hi:"अपने उत्पाद, ऑर्डर, ग्राहक खोजें...",te:"మీ ఉత్పత్తులు, ఆర్డర్లు, వినియోగదారులను శోధించండి...",ta:"உங்கள் தயாரிப்புகள், ஆர்டர்கள், வாடிக்கையாளர்களைத் தேடுங்கள்...",kn:"ನಿಮ್ಮ ಉತ್ಪನ್ನಗಳು, ಆರ್ಡರ್‌ಗಳು, ಗ್ರಾಹಕರನ್ನು ಹುಡುಕಿ...",mr:"तुमची उत्पादने, ऑर्डर, ग्राहक शोधा..."},
+  customerSearchPh:{en:"Search for tomatoes, mangoes, rice...",hi:"टमाटर, आम, चावल खोजें...",te:"టమోటాలు, మామిడి, బియ్యం కోసం శోధించండి...",ta:"தக்காளி, மாம்பழம், அரிசி தேடுங்கள்...",kn:"ಟೊಮ್ಯಾಟೊ, ಮಾವು, ಅಕ್ಕಿ ಹುಡುಕಿ...",mr:"टोमॅटो, आंबा, तांदूळ शोधा..."},
+  shop:{en:"Shop",hi:"दुकान",te:"షాప్",ta:"கடை",kn:"ಅಂಗಡಿ",mr:"दुकान"},
+  home:{en:"Home",hi:"होम",te:"హోమ్",ta:"முகப்பு",kn:"ಮುಖಪುಟ",mr:"होम"},
+  categories:{en:"Categories",hi:"श्रेणियां",te:"వర్గాలు",ta:"வகைகள்",kn:"ವರ್ಗಗಳು",mr:"श्रेणी"},
+  cart:{en:"Cart",hi:"कार्ट",te:"కార్ట్",ta:"கார்ட்",kn:"ಕಾರ್ಟ್",mr:"कार्ट"},
+  myOrders:{en:"My Orders",hi:"मेरे ऑर्डर",te:"నా ఆర్డర్లు",ta:"எனது ஆர்டர்கள்",kn:"ನನ್ನ ಆರ್ಡರ್‌ಗಳು",mr:"माझ्या ऑर्डर"},
+  myDeliveryLocations:{en:"My Delivery Locations",hi:"मेरे डिलीवरी स्थान",te:"నా డెలివరీ స్థానాలు",ta:"எனது டெலிவரி இடங்கள்",kn:"ನನ್ನ ವಿತರಣಾ ಸ್ಥಳಗಳು",mr:"माझी डिलिव्हरी ठिकाणे"},
+  paymentsNav:{en:"Payments",hi:"भुगतान",te:"చెల్లింపులు",ta:"கட்டணங்கள்",kn:"ಪಾವತಿಗಳು",mr:"पेमेंट्स"},
+  wishlist:{en:"Wishlist",hi:"विशलिस्ट",te:"వాంఛా జాబితా",ta:"விருப்பப் பட்டியல்",kn:"ಬಯಕೆಪಟ್ಟಿ",mr:"विशलिस्ट"},
+  dashHead:{en:"Welcome back",hi:"वापसी पर स्वागत है",te:"తిరిగి స్వాగతం",ta:"மீண்டும் வரவேற்கிறோம்",kn:"ಮತ್ತೆ ಸ್ವಾಗತ",mr:"परत स्वागत आहे"},
+  myProductsHead:{en:"My Products",hi:"मेरे उत्पाद",te:"నా ఉత్పత్తులు",ta:"எனது தயாரிப்புகள்",kn:"ನನ್ನ ಉತ್ಪನ್ನಗಳು",mr:"माझी उत्पादने"},
+  deletedProductsHead:{en:"Deleted Products",hi:"हटाए गए उत्पाद",te:"తొలగించిన ఉత్పత్తులు",ta:"நீக்கப்பட்ட தயாரிப்புகள்",kn:"ಅಳಿಸಿದ ಉತ್ಪನ್ನಗಳು",mr:"हटवलेली उत्पादने"},
+  addNewProductHead:{en:"Add New Product",hi:"नया उत्पाद जोड़ें",te:"కొత్త ఉత్పత్తిని జోడించండి",ta:"புதிய தயாரிப்பைச் சேர்க்கவும்",kn:"ಹೊಸ ಉತ್ಪನ್ನ ಸೇರಿಸಿ",mr:"नवीन उत्पादन जोडा"},
+  stockManagementHead:{en:"Stock Management",hi:"स्टॉक प्रबंधन",te:"స్టాక్ నిర్వహణ",ta:"சரக்கு மேலாண்மை",kn:"ಸ್ಟಾಕ್ ನಿರ್ವಹಣೆ",mr:"स्टॉक व्यवस्थापन"},
+  ordersHead:{en:"Orders",hi:"ऑर्डर",te:"ఆర్డర్లు",ta:"ஆர்டர்கள்",kn:"ಆರ್ಡರ್‌ಗಳು",mr:"ऑर्डर"},
+  customersHead:{en:"Customers",hi:"ग्राहक",te:"వినియోగదారులు",ta:"வாடிக்கையாளர்கள்",kn:"ಗ್ರಾಹಕರು",mr:"ग्राहक"},
+  salesAnalyticsHead:{en:"Sales Analytics",hi:"बिक्री विश्लेषण",te:"సేల్స్ అనలిటిక్స్",ta:"விற்பனை பகுப்பாய்வு",kn:"ಮಾರಾಟ ವಿಶ್ಲೇಷಣೆ",mr:"विक्री विश्लेषण"},
+  paymentsHead:{en:"Payments",hi:"भुगतान",te:"చెల్లింపులు",ta:"கட்டணங்கள்",kn:"ಪಾವತಿಗಳು",mr:"पेमेंट्स"},
+  farmLocationHead:{en:"Farm Location",hi:"फार्म का स्थान",te:"ఫారం స్థానం",ta:"பண்ணை இருப்பிடம்",kn:"ಫಾರ್ಮ್ ಸ್ಥಳ",mr:"शेताचे ठिकाण"},
+  sellerProfileHead:{en:"Seller Profile",hi:"विक्रेता प्रोफ़ाइल",te:"విక్రేత ప్రొఫైల్",ta:"விற்பனையாளர் சுயவிவரம்",kn:"ಮಾರಾಟಗಾರ ಪ್ರೊಫೈಲ್",mr:"विक्रेता प्रोफाइल"},
+  settingsHead:{en:"Settings",hi:"सेटिंग्स",te:"సెట్టింగ్‌లు",ta:"அமைப்புகள்",kn:"ಸೆಟ್ಟಿಂಗ್‌ಗಳು",mr:"सेटिंग्ज"},
+  categoriesHead:{en:"Categories",hi:"श्रेणियां",te:"వర్గాలు",ta:"வகைகள்",kn:"ವರ್ಗಗಳು",mr:"श्रेणी"},
+  shopHead:{en:"Shop",hi:"दुकान",te:"షాప్",ta:"கடை",kn:"ಅಂಗಡಿ",mr:"दुकान"},
+  myCartHead:{en:"My Cart",hi:"मेरा कार्ट",te:"నా కార్ట్",ta:"எனது கார்ட்",kn:"ನನ್ನ ಕಾರ್ಟ್",mr:"माझी कार्ट"},
+  myOrdersHead:{en:"My Orders",hi:"मेरे ऑर्डर",te:"నా ఆర్డర్లు",ta:"எனது ஆர்டர்கள்",kn:"ನನ್ನ ಆರ್ಡರ್‌ಗಳು",mr:"माझ्या ऑर्डर"},
+  myDeliveryLocationsHead:{en:"My Delivery Locations",hi:"मेरे डिलीवरी स्थान",te:"నా డెలివరీ స్థానాలు",ta:"எனது டெலிவரி இடங்கள்",kn:"ನನ್ನ ವಿತರಣಾ ಸ್ಥಳಗಳು",mr:"माझी डिलिव्हरी ठिकाणे"},
+  wishlistHead:{en:"Wishlist",hi:"विशलिस्ट",te:"వాంఛా జాబితా",ta:"விருப்பப் பட்டியல்",kn:"ಬಯಕೆಪಟ್ಟಿ",mr:"विशलिस्ट"},
+  myProfileHead:{en:"My Profile",hi:"मेरी प्रोफ़ाइल",te:"నా ప్రొఫైల్",ta:"எனது சுயவிவரம்",kn:"ನನ್ನ ಪ್ರೊಫೈಲ್",mr:"माझी प्रोफाइल"},
+  addProductBtn:{en:"＋ Add Product",hi:"＋ उत्पाद जोड़ें",te:"＋ ఉత్పత్తిని జోడించండి",ta:"＋ தயாரிப்பைச் சேர்க்கவும்",kn:"＋ ಉತ್ಪನ್ನ ಸೇರಿಸಿ",mr:"＋ उत्पादन जोडा"},
+  edit:{en:"Edit",hi:"संपादित करें",te:"సవరించు",ta:"திருத்து",kn:"ಸಂಪಾದಿಸಿ",mr:"संपादित करा"},
+  cancel:{en:"Cancel",hi:"रद्द करें",te:"రద్దు చేయండి",ta:"ரத்து செய்",kn:"ರದ್ದುಮಾಡಿ",mr:"रद्द करा"},
+  save:{en:"Save",hi:"सहेजें",te:"సేవ్ చేయండి",ta:"சேமி",kn:"ಉಳಿಸಿ",mr:"जतन करा"},
+  stockBtn:{en:"Stock",hi:"स्टॉक",te:"స్టాక్",ta:"சரக்கு",kn:"ಸ್ಟಾಕ್",mr:"स्टॉक"},
+  saveChanges:{en:"Save Changes",hi:"परिवर्तन सहेजें",te:"మార్పులను సేవ్ చేయండి",ta:"மாற்றங்களைச் சேமி",kn:"ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ",mr:"बदल जतन करा"},
+  productImage:{en:"Product Image",hi:"उत्पाद की छवि",te:"ఉత్పత్తి చిత్రం",ta:"தயாரிப்பு படம்",kn:"ಉತ್ಪನ್ನ ಚಿತ್ರ",mr:"उत्पादनाची प्रतिमा"},
+  productImageHint:{en:"Optional — upload a photo, or we'll just show the product emoji.",hi:"वैकल्पिक — एक फोटो अपलोड करें, या हम बस उत्पाद इमोजी दिखाएंगे।",te:"ఐచ్ఛికం — ఫోటోను అప్‌లోడ్ చేయండి, లేదా మేము ఉత్పత్తి ఎమోజీని చూపిస్తాము.",ta:"விரும்பினால் — ஒரு புகைப்படத்தை பதிவேற்றவும், அல்லது நாங்கள் தயாரிப்பு எமோஜியைக் காண்பிப்போம்.",kn:"ಐಚ್ಛಿಕ — ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ, ಅಥವಾ ನಾವು ಉತ್ಪನ್ನ ಎಮೋಜಿ ತೋರಿಸುತ್ತೇವೆ.",mr:"पर्यायी — फोटो अपलोड करा, किंवा आम्ही उत्पादन इमोजी दाखवू."}
+};
+function t(key){
+  const lang = (typeof currentLang !== "undefined" && currentLang) || "en";
+  const entry = I18N[key];
+  if(!entry) return key;
+  return entry[lang] || entry.en || key;
+}
+let currentLang = localStorage.getItem("fd_lang") || "en";
+function populateLangSelects(){
+  const opts = LANGUAGES.map(l=>`<option value="${l.code}">${l.label}</option>`).join("");
+  ["langSelect","langSelectApp","langSelectAppC"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.innerHTML = opts; el.value = currentLang; }
+  });
+}
+function applyStaticI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    el.innerHTML = t(key);
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-ph");
+    el.setAttribute("placeholder", t(key));
+  });
+}
+function setLanguage(lang){
+  currentLang = lang;
+  localStorage.setItem("fd_lang", lang);
+  populateLangSelects();
+  applyStaticI18n();
+  // Re-render whichever dynamic view is currently on screen so it picks up the new language too.
+  if(session && session.type==="seller" && typeof sellerState!=="undefined" && sellerState.currentView){
+    sellerNav(sellerState.currentView);
+  } else if(session && session.type==="customer" && typeof customerState!=="undefined" && customerState.currentView){
+    customerNav(customerState.currentView);
+  }
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+function uid(prefix){ return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function rndFloat(min,max,dec){ dec=dec||1; return +(Math.random()*(max-min)+min).toFixed(dec); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pickWeighted(pairs){ // [[value,weight],...]
+  const total = pairs.reduce((s,p)=>s+p[1],0);
+  let r = Math.random()*total;
+  for(const [v,w] of pairs){ if(r<w) return v; r-=w; }
+  return pairs[0][0];
+}
+function fmtINR(n){ return "₹" + Math.round(n).toLocaleString("en-IN"); }
+function fmtDate(ts){ const d=new Date(ts); return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}); }
+function fmtDateTime(ts){ const d=new Date(ts); return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short"}) + ", " + d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}); }
+function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function toast(msg, isError){
+  const c = document.getElementById("toast-container");
+  const el = document.createElement("div");
+  el.className = "toast" + (isError ? " error" : "");
+  el.innerHTML = (isError ? "⚠️ " : "✅ ") + escapeHtml(msg);
+  c.appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transition="opacity .3s"; setTimeout(()=>el.remove(),300); }, 2600);
+}
+// Returns the seller's own uploaded photo if there is one — otherwise null, since
+// listings now show the category/product emoji instead of an auto-fetched stock photo.
+function productImageUrl(p){
+  return p.image || null;
+}
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31 + s.charCodeAt(i))|0; } return Math.abs(h)%5000; }
+// Renders an image-with-fallback block: if the seller uploaded a real photo, show it
+// (falling back to the emoji if it fails to load); otherwise show the emoji straight away —
+// no external stock photos are fetched.
+function productImgTag(p, extraStyle){
+  const url = productImageUrl(p);
+  if(!url){
+    return `<div class="img-fallback" style="${extraStyle||''}">${p.emoji}</div>`;
+  }
+  return `<img src="${url}" alt="${escapeHtml(p.name)}" style="${extraStyle||''}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="img-fallback" style="display:none;">${p.emoji}</div>`;
+}
+function fileToDataUrl(file, cb){
+  const reader = new FileReader();
+  reader.onload = () => cb(reader.result);
+  reader.readAsDataURL(file);
+}
+function closeModal(){ document.getElementById("modalRoot").innerHTML = ""; }
+function openModal(html, wide){
+  document.getElementById("modalRoot").innerHTML =
+    '<div class="modal-overlay" onmousedown="if(event.target===this)closeModal()">' +
+      '<div class="modal ' + (wide?"wide":"") + '">' + html + '</div>' +
+    '</div>';
+}
+function toggleSidebar(id){ document.getElementById(id).classList.toggle("open"); }
+
+/* ==========================================================================
+   STATIC REFERENCE DATA
+   ========================================================================== */
+const CATEGORY_DATA = {
+  "Vegetables": {subs:["Tomato","Potato","Onion","Carrot","Cabbage","Brinjal","Lady Finger","Spinach","Cauliflower","Green Chilli","Cucumber","Beetroot","Green Peas","Pumpkin","Radish","Bottle Gourd"], unit:"kg", price:[10,55], emoji:"🥬", grad:"linear-gradient(135deg,#DFF3E3,#BFE6C8)"},
+  "Fruits": {subs:["Mango","Banana","Apple","Orange","Papaya","Guava","Watermelon","Pomegranate","Grapes","Pineapple","Sapota","Muskmelon","Sweet Lime"], unit:"kg", price:[25,190], emoji:"🥭", grad:"linear-gradient(135deg,#FDECC8,#FBD9A6)"},
+  "Grains": {subs:["Rice","Wheat","Maize","Millet","Ragi","Jowar","Barley"], unit:"kg", price:[28,95], emoji:"🌾", grad:"linear-gradient(135deg,#F4EBD3,#E7D9AE)"},
+  "Pulses": {subs:["Toor Dal","Moong Dal","Chana","Urad Dal","Masoor Dal","Rajma"], unit:"kg", price:[70,165], emoji:"🫘", grad:"linear-gradient(135deg,#EFE2D6,#DDC5AE)"},
+  "Spices": {subs:["Turmeric","Red Chilli Powder","Coriander Seeds","Cumin","Black Pepper","Mustard Seeds","Cardamom","Cloves"], unit:"kg", price:[80,950], emoji:"🌶️", grad:"linear-gradient(135deg,#FBDEDE,#F6BEBE)"},
+  "Oil Seeds": {subs:["Groundnut","Sunflower Seeds","Sesame","Soybean"], unit:"kg", price:[60,165], emoji:"🌻", grad:"linear-gradient(135deg,#FCEFC1,#F8DD8B)"},
+  "Organic": {subs:["Organic Tomato","Organic Rice","Organic Turmeric","Organic Jaggery","Organic Honey","Organic Moong Dal"], unit:"kg", price:[60,420], emoji:"🌿", grad:"linear-gradient(135deg,#DCEFE0,#B9DEC0)"},
+  "Others": {subs:["Jaggery","Coconut","Curry Leaves","Coffee Beans","Tea Leaves","Areca Nut"], unit:"kg", price:[20,520], emoji:"🧺", grad:"linear-gradient(135deg,#E7E7E7,#D3D3D3)"}
+};
+const CATEGORIES = Object.keys(CATEGORY_DATA);
+
+const TOWNS = [
+  {name:"Kurnool, AP", lat:15.8281, lng:78.0373},
+  {name:"Anantapur, AP", lat:14.6819, lng:77.6006},
+  {name:"Kadapa, AP", lat:14.4673, lng:78.8242},
+  {name:"Guntur, AP", lat:16.3067, lng:80.4365},
+  {name:"Nellore, AP", lat:14.4426, lng:79.9865},
+  {name:"Chittoor, AP", lat:13.2172, lng:79.1003},
+  {name:"Vijayawada, AP", lat:16.5062, lng:80.6480},
+  {name:"Tirupati, AP", lat:13.6288, lng:79.4192},
+  {name:"Warangal, TS", lat:17.9689, lng:79.5941},
+  {name:"Nizamabad, TS", lat:18.6725, lng:78.0941},
+  {name:"Hyderabad, TS", lat:17.3850, lng:78.4867},
+  {name:"Nashik, MH", lat:19.9975, lng:73.7898},
+  {name:"Coimbatore, TN", lat:11.0168, lng:76.9558},
+  {name:"Mysuru, KA", lat:12.2958, lng:76.6394}
+];
+const FIRST_NAMES_M = ["Ramulu","Venkatesh","Suresh","Nagaraju","Srinivas","Ravi","Krishna","Prasad","Anjaneyulu","Ramesh","Chandra","Mahesh","Balaraju","Yellaiah","Narayana","Sivaiah","Obulesu","Muthu","Rajendra","Vijay","Sunil","Ganesh","Manohar","Rajesh","Prakash"];
+const FIRST_NAMES_F = ["Lakshmi","Sarala","Padma","Anitha","Ramulamma","Saraswathi","Vijaya","Sunitha","Kavitha","Bhavani","Sridevi","Radha","Swathi","Devi","Jyothi","Rajeshwari","Parvathi","Nagamma","Ushamma","Meena"];
+const LAST_NAMES = ["Reddy","Naidu","Chowdary","Yadav","Rao","Naik","Goud","Setty","Verma","Kumar","Sharma","Gowda","Patil","Iyer","Prasad"];
+const FARM_PREFIX = ["Green Valley","Sunrise","Golden Field","Fresh Earth","Mother Nature","Krishna","Godavari","Annapurna","Harvest Moon","Blue Sky","Evergreen","Nature's Best","Sri Lakshmi","Bhoomi","Amrit"];
+const FARM_SUFFIX = ["Farms","Agro Farm","Organic Farm","Farmhouse","Fields","Agri Estate","Growers"];
+
+function randomIndianName(){
+  const isMale = Math.random() < 0.6;
+  const first = isMale ? pick(FIRST_NAMES_M) : pick(FIRST_NAMES_F);
+  return first + " " + pick(LAST_NAMES);
+}
+function randomPhone(){ return "9" + rnd(100000000,999999999); }
+function randomFarmName(sellerLastName){ return pick(FARM_PREFIX) + " " + pick(FARM_SUFFIX); }
+function jitter(v, amt){ return v + (Math.random()-0.5)*amt; }
+
+/* ==========================================================================
+   PERSISTENCE LAYER (acts as the "central database" — single JS state
+   shared by both seller & customer portals, persisted to localStorage so
+   changes made by a seller are instantly reflected for every customer and
+   vice-versa; swap this layer for Firebase/Mongo calls in production).
+   ========================================================================== */
+const DB_KEYS = {
+  sellers:"fd_sellers", customers:"fd_customers", products:"fd_products",
+  orders:"fd_orders", session:"fd_session", carts:"fd_carts",
+  wishlists:"fd_wishlists", savedLocations:"fd_saved_locations", seeded:"fd_seeded_v1"
+};
+function dbGet(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function dbSet(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+
+let DB = {
+  sellers: dbGet(DB_KEYS.sellers, []),
+  customers: dbGet(DB_KEYS.customers, []),
+  products: dbGet(DB_KEYS.products, []),
+  orders: dbGet(DB_KEYS.orders, []),
+  carts: dbGet(DB_KEYS.carts, {}),           // customerId -> [{productId, qty}]
+  wishlists: dbGet(DB_KEYS.wishlists, {}),   // customerId -> [productId]
+  savedLocations: dbGet(DB_KEYS.savedLocations, {}) // customerId -> [{label,lat,lng,address}]
+};
+function persist(part){
+  if(!part || part==="sellers") dbSet(DB_KEYS.sellers, DB.sellers);
+  if(!part || part==="customers") dbSet(DB_KEYS.customers, DB.customers);
+  if(!part || part==="products") dbSet(DB_KEYS.products, DB.products);
+  if(!part || part==="orders") dbSet(DB_KEYS.orders, DB.orders);
+  if(!part || part==="carts") dbSet(DB_KEYS.carts, DB.carts);
+  if(!part || part==="wishlists") dbSet(DB_KEYS.wishlists, DB.wishlists);
+  if(!part || part==="savedLocations") dbSet(DB_KEYS.savedLocations, DB.savedLocations);
+}
+/* ==========================================================================
+   DEMO DATA GENERATORS — generateDemoProducts / generateDemoCustomers /
+   generateDemoOrders. Run once on first load, then persisted so the same
+   1000+ record catalog stays stable across sessions.
+   ========================================================================== */
+function generateDemoSellers(count){
+  const sellers = [];
+  for(let i=0;i<count;i++){
+    const name = randomIndianName();
+    const town = pick(TOWNS);
+    sellers.push({
+      id: "SEL" + String(1000+i),
+      name: name,
+      farmName: randomFarmName(name),
+      phone: randomPhone(),
+      email: name.toLowerCase().replace(/[^a-z]/g,"") + i + "@farmdirect.demo",
+      password: CONFIG.DEMO_PASSWORD,
+      location: { lat: jitter(town.lat,0.15), lng: jitter(town.lng,0.15), address: town.name },
+      upiId: name.toLowerCase().replace(/[^a-z]/g,"") + i + "@upi",
+      rating: rndFloat(3.6,5.0,1),
+      joined: Date.now() - rnd(30, 900)*86400000
+    });
+  }
+  return sellers;
+}
+
+function generateDemoProducts(count, sellers){
+  const products = [];
+  const descTemplates = [
+    "Freshly harvested {sub} grown using natural farming methods. Sourced directly from our farm with no middlemen.",
+    "Premium quality {sub}, hand-picked and sorted for freshness. Delivered same-day from {farm}.",
+    "Farm-fresh {sub} grown with care in {loc}. Great taste, great price, straight from the source.",
+    "High quality {sub} cultivated at {farm}. Rich in nutrients, harvested at peak ripeness.",
+    "Locally grown {sub} — pesticide-conscious farming, packed fresh for direct home delivery."
+  ];
+  for(let i=0;i<count;i++){
+    const category = pick(CATEGORIES);
+    const cd = CATEGORY_DATA[category];
+    const sub = pick(cd.subs);
+    const seller = pick(sellers);
+    const price = rnd(cd.price[0], cd.price[1]);
+    const stock = pick([10,15,20,25,30,40,50,60,75,100,120,150,200,250,300,500,750,1000]);
+    const minOrder = category==="Spices" || category==="Oil Seeds" ? 1 : pick([1,1,1,2,5]);
+    const desc = pick(descTemplates).replace("{sub}", sub).replace("{farm}", seller.farmName).replace("{loc}", seller.location.address);
+    products.push({
+      id: "PRD" + String(10000+i),
+      name: (category==="Organic" ? sub : sub) ,
+      category: category,
+      subCategory: sub,
+      sellerId: seller.id,
+      sellerName: seller.name,
+      farmName: seller.farmName,
+      price: price,
+      unit: cd.unit,
+      stock: stock,
+      minOrder: minOrder,
+      emoji: cd.emoji,
+      grad: cd.grad,
+      location: seller.location.address,
+      description: desc,
+      status: "active", // active | deleted
+      dateAdded: Date.now() - rnd(1,400)*86400000,
+      rating: rndFloat(3.5,5.0,1),
+      salesCount: rnd(0,600)
+    });
+  }
+  return products;
+}
+
+function generateDemoCustomers(count){
+  const customers = [];
+  for(let i=0;i<count;i++){
+    const name = randomIndianName();
+    const town = pick(TOWNS);
+    customers.push({
+      id: "CUS" + String(5000+i),
+      name: name,
+      phone: randomPhone(),
+      email: name.toLowerCase().replace(/[^a-z]/g,"") + i + "@customer.demo",
+      password: CONFIG.DEMO_PASSWORD,
+      location: { lat: jitter(town.lat,0.2), lng: jitter(town.lng,0.2), address: town.name },
+      status: pickWeighted([["active",90],["inactive",10]]),
+      joined: Date.now() - rnd(5,700)*86400000
+    });
+  }
+  return customers;
+}
+
+const ORDER_STATUS_FLOW = ["Order Placed","Confirmed","Packed","Out for Delivery","Delivered"];
+function buildStatusHistory(finalStatus, orderDate){
+  if(finalStatus === "Cancelled"){
+    return [{status:"Order Placed", at:orderDate}, {status:"Cancelled", at:orderDate + rnd(1,5)*3600000}];
+  }
+  const idx = ORDER_STATUS_FLOW.indexOf(finalStatus);
+  const hist = [];
+  for(let s=0;s<=idx;s++){ hist.push({status:ORDER_STATUS_FLOW[s], at: orderDate + s*rnd(3,20)*3600000}); }
+  return hist;
+}
+function generateDemoOrders(count, products, customers){
+  const orders = [];
+  const activeProducts = products.filter(p=>p.status==="active");
+  for(let i=0;i<count;i++){
+    const product = pick(activeProducts);
+    const customer = pick(customers);
+    const maxQty = Math.max(1, Math.min(8, product.stock - 1));
+    const qty = rnd(1, maxQty);
+    const subtotal = qty * product.price;
+    const deliveryFee = CONFIG.DELIVERY_FEE;
+    const total = subtotal + deliveryFee;
+    const status = pickWeighted([["Delivered",55],["Out for Delivery",8],["Packed",7],["Confirmed",8],["Order Placed",12],["Cancelled",10]]);
+    const orderDate = Date.now() - rnd(0,60)*86400000 - rnd(0,86399)*1000;
+    const payMethod = pickWeighted([["UPI",50],["COD",35],["CARD",15]]);
+    orders.push({
+      id: "ORD" + String(100000+i),
+      customerId: customer.id, customerName: customer.name, customerPhone: customer.phone, customerEmail: customer.email,
+      sellerId: product.sellerId, sellerName: product.sellerName,
+      items: [{ productId: product.id, name: product.name, unit: product.unit, qty: qty, price: product.price, subtotal: subtotal }],
+      subtotal: subtotal, deliveryFee: deliveryFee, total: total,
+      deliveryLocation: { lat: jitter(customer.location.lat,0.05), lng: jitter(customer.location.lng,0.05), address: customer.location.address },
+      paymentMethod: payMethod,
+      status: status,
+      statusHistory: buildStatusHistory(status, orderDate),
+      date: orderDate
+    });
+  }
+  orders.sort((a,b)=>b.date-a.date);
+  return orders;
+}
+
+function seedDatabaseIfNeeded(){
+  if(dbGet(DB_KEYS.seeded, false) && DB.products.length && DB.customers.length && DB.orders.length && DB.sellers.length){
+    return;
+  }
+  toastSilent = true;
+  const sellers = generateDemoSellers(42);
+  const products = generateDemoProducts(1080, sellers);
+  const customers = generateDemoCustomers(1050);
+  const orders = generateDemoOrders(1050, products, customers);
+  DB.sellers = sellers; DB.products = products; DB.customers = customers; DB.orders = orders;
+  DB.carts = {}; DB.wishlists = {}; DB.savedLocations = {};
+  persist();
+  dbSet(DB_KEYS.seeded, true);
+}
+/* ==========================================================================
+   AUTH
+   ========================================================================== */
+let session = dbGet(DB_KEYS.session, null); // {type:'seller'|'customer', id}
+let currentAuthPortal = "seller";
+
+function setAuthPortal(portal){
+  currentAuthPortal = portal;
+  document.getElementById("toggleSellerBtn").classList.toggle("active", portal==="seller");
+  document.getElementById("toggleCustomerBtn").classList.toggle("active", portal==="customer");
+  document.getElementById("sellerLoginForm").classList.toggle("hidden", portal!=="seller");
+  document.getElementById("sellerRegisterForm").classList.add("hidden");
+  document.getElementById("customerLoginForm").classList.toggle("hidden", portal!=="customer");
+  document.getElementById("customerRegisterForm").classList.add("hidden");
+  document.getElementById("authSideTitle").innerHTML = portal==="seller"
+    ? "Sell your harvest,<br>reach customers directly."
+    : "Fresh produce,<br>straight from the farm.";
+  document.getElementById("authSideSub").textContent = portal==="seller"
+    ? "Manage products, track stock and fulfil orders from one simple dashboard built for farmers."
+    : "A marketplace connecting local farmers directly to customers — no middlemen, fair prices, same-day freshness.";
+}
+function showSellerRegister(){ document.getElementById("sellerLoginForm").classList.add("hidden"); document.getElementById("sellerRegisterForm").classList.remove("hidden"); }
+function showSellerLoginForm(){ document.getElementById("sellerRegisterForm").classList.add("hidden"); document.getElementById("sellerLoginForm").classList.remove("hidden"); }
+function showCustomerRegister(){ document.getElementById("customerLoginForm").classList.add("hidden"); document.getElementById("customerRegisterForm").classList.remove("hidden"); }
+function showCustomerLoginForm(){ document.getElementById("customerRegisterForm").classList.add("hidden"); document.getElementById("customerLoginForm").classList.remove("hidden"); }
+
+function findSellerByCred(idVal){ return DB.sellers.find(s=>s.phone===idVal || s.email.toLowerCase()===idVal.toLowerCase()); }
+function findCustomerByCred(idVal){ return DB.customers.find(c=>c.phone===idVal || c.email.toLowerCase()===idVal.toLowerCase()); }
+
+function handleSellerLogin(){
+  const idVal = document.getElementById("sellerLoginId").value.trim();
+  const pass = document.getElementById("sellerLoginPass").value;
+  if(!idVal || !pass){ toast("Enter your phone/email and password", true); return; }
+  const seller = findSellerByCred(idVal);
+  if(!seller || pass !== seller.password){ toast("Invalid credentials. Try demo123 as password.", true); return; }
+  session = {type:"seller", id:seller.id}; dbSet(DB_KEYS.session, session);
+  enterApp();
+}
+function quickSellerLogin(){
+  const seller = pick(DB.sellers);
+  session = {type:"seller", id:seller.id}; dbSet(DB_KEYS.session, session);
+  toast("Logged in as " + seller.name + " (" + seller.farmName + ")");
+  enterApp();
+}
+function handleSellerRegister(){
+  const name = document.getElementById("regSellerName").value.trim();
+  const farm = document.getElementById("regSellerFarm").value.trim();
+  const phone = document.getElementById("regSellerPhone").value.trim();
+  const email = document.getElementById("regSellerEmail").value.trim();
+  const loc = document.getElementById("regSellerLocation").value.trim();
+  const upi = document.getElementById("regSellerUpi").value.trim();
+  const pass = document.getElementById("regSellerPass").value;
+  if(!name||!farm||!phone||!pass){ toast("Please fill name, farm name, phone and password", true); return; }
+  if(findSellerByCred(phone) || (email && findSellerByCred(email))){ toast("An account with this phone/email already exists", true); return; }
+  const town = pick(TOWNS);
+  const seller = {
+    id: uid("SEL"), name, farmName: farm, phone, email: email || (phone+"@farmdirect.demo"),
+    password: pass, location: {lat: town.lat, lng: town.lng, address: loc || town.name},
+    upiId: upi || (phone + "@upi"), rating: 4.5, joined: Date.now()
+  };
+  DB.sellers.push(seller); persist("sellers");
+  session = {type:"seller", id:seller.id}; dbSet(DB_KEYS.session, session);
+  toast("Seller account created — welcome to FarmDirect!");
+  enterApp();
+}
+
+function handleCustomerLogin(){
+  const idVal = document.getElementById("customerLoginId").value.trim();
+  const pass = document.getElementById("customerLoginPass").value;
+  if(!idVal || !pass){ toast("Enter your phone/email and password", true); return; }
+  const cust = findCustomerByCred(idVal);
+  if(!cust || pass !== cust.password){ toast("Invalid credentials. Try demo123 as password.", true); return; }
+  session = {type:"customer", id:cust.id}; dbSet(DB_KEYS.session, session);
+  enterApp();
+}
+function quickCustomerLogin(){
+  const cust = pick(DB.customers.filter(c=>c.status==="active"));
+  session = {type:"customer", id:cust.id}; dbSet(DB_KEYS.session, session);
+  toast("Logged in as " + cust.name);
+  enterApp();
+}
+function handleCustomerRegister(){
+  const name = document.getElementById("regCustName").value.trim();
+  const phone = document.getElementById("regCustPhone").value.trim();
+  const email = document.getElementById("regCustEmail").value.trim();
+  const loc = document.getElementById("regCustLocation").value.trim();
+  const pass = document.getElementById("regCustPass").value;
+  if(!name||!phone||!pass){ toast("Please fill name, phone and password", true); return; }
+  if(findCustomerByCred(phone) || (email && findCustomerByCred(email))){ toast("An account with this phone/email already exists", true); return; }
+  const town = pick(TOWNS);
+  const cust = {
+    id: uid("CUS"), name, phone, email: email || (phone+"@customer.demo"), password: pass,
+    location: {lat: town.lat, lng: town.lng, address: loc || town.name}, status:"active", joined: Date.now()
+  };
+  DB.customers.push(cust); persist("customers");
+  session = {type:"customer", id:cust.id}; dbSet(DB_KEYS.session, session);
+  toast("Account created — happy shopping!");
+  enterApp();
+}
+function logout(){
+  session = null; localStorage.removeItem(DB_KEYS.session);
+  document.getElementById("sellerApp").classList.add("hidden");
+  document.getElementById("customerApp").classList.add("hidden");
+  document.getElementById("authScreen").classList.remove("hidden");
+  showSellerLoginForm(); showCustomerLoginForm(); setAuthPortal("seller");
+}
+function currentSeller(){ return DB.sellers.find(s=>s.id===session.id); }
+function currentCustomer(){ return DB.customers.find(c=>c.id===session.id); }
+
+function enterApp(){
+  document.getElementById("authScreen").classList.add("hidden");
+  if(session.type === "seller"){
+    document.getElementById("customerApp").classList.add("hidden");
+    document.getElementById("sellerApp").classList.remove("hidden");
+    const s = currentSeller();
+    document.getElementById("sellerAvatar").textContent = s.name.charAt(0).toUpperCase();
+    sellerNav("dashboard");
+  } else {
+    document.getElementById("sellerApp").classList.add("hidden");
+    document.getElementById("customerApp").classList.remove("hidden");
+    const c = currentCustomer();
+    document.getElementById("customerAvatar").textContent = c.name.charAt(0).toUpperCase();
+    updateCartBadge();
+    customerNav("home");
+  }
+}
+/* ==========================================================================
+   SELLER PORTAL
+   ========================================================================== */
+let sellerState = { productsPage:1, ordersPage:1, customersPage:1, productSearch:"", productCatFilter:"All", orderStatusFilter:"All", pageSize:24 };
+
+function sellerProducts(activeOnly){
+  const s = currentSeller();
+  return DB.products.filter(p => p.sellerId===s.id && (activeOnly===false ? true : p.status==="active"));
+}
+function sellerOrders(){
+  const s = currentSeller();
+  return DB.orders.filter(o=>o.sellerId===s.id).sort((a,b)=>b.date-a.date);
+}
+function sellerCustomerIds(){
+  const ids = new Set(sellerOrders().map(o=>o.customerId));
+  return Array.from(ids);
+}
+
+function sellerNav(view){
+  sellerState.currentView = view;
+  document.querySelectorAll("#sellerSidebar .nav-item").forEach(el=>el.classList.toggle("active", el.dataset.view===view));
+  document.querySelectorAll("#sellerApp .view").forEach(el=>el.classList.remove("active"));
+  document.getElementById("view-"+view).classList.add("active");
+  const renderMap = {
+    dashboard: renderSellerDashboard, products: renderSellerProducts, addProduct: renderAddProductForm,
+    deletedProducts: renderDeletedProducts, stock: renderStockManagement, orders: renderSellerOrders,
+    customers: renderSellerCustomers, analytics: renderSellerAnalytics, payments: renderSellerPayments,
+    location: renderSellerLocation, profile: renderSellerProfile, settings: renderSellerSettings
+  };
+  if(renderMap[view]) renderMap[view]();
+  document.getElementById("sellerSidebar").classList.remove("open");
+}
+function sellerGlobalSearch(q){
+  sellerState.productSearch = q;
+  sellerNav("products");
+}
+
+function renderSellerDashboard(){
+  const s = currentSeller();
+  const products = sellerProducts(false);
+  const active = products.filter(p=>p.status==="active");
+  const orders = sellerOrders();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayOrders = orders.filter(o=>o.date >= today.getTime());
+  const revenue = orders.filter(o=>o.status!=="Cancelled").reduce((sum,o)=>sum+o.total,0);
+  const todaySales = todayOrders.filter(o=>o.status!=="Cancelled").reduce((sum,o)=>sum+o.total,0);
+  const pending = orders.filter(o=>["Order Placed","Confirmed","Packed","Out for Delivery"].includes(o.status)).length;
+  const totalStock = active.reduce((sum,p)=>sum+p.stock,0);
+  document.getElementById("sellerPendingBadge").textContent = pending + " pending";
+
+  const topProducts = [...active].sort((a,b)=>b.salesCount-a.salesCount).slice(0,6);
+  const maxSales = Math.max(1, ...topProducts.map(p=>p.salesCount));
+
+  const last7 = [];
+  for(let i=6;i>=0;i--){
+    const dayStart = today.getTime() - i*86400000;
+    const dayEnd = dayStart + 86400000;
+    const dayTotal = orders.filter(o=>o.date>=dayStart && o.date<dayEnd && o.status!=="Cancelled").reduce((s2,o)=>s2+o.total,0);
+    last7.push({label:new Date(dayStart).toLocaleDateString("en-IN",{weekday:"short"}), val:dayTotal});
+  }
+  const maxDay = Math.max(1, ...last7.map(d=>d.val));
+
+  document.getElementById("view-dashboard").innerHTML = `
+    <div class="page-head"><div><h1>${t('dashHead')}, ${escapeHtml(s.name.split(" ")[0])} 👋</h1><p>${escapeHtml(s.farmName)} · ${escapeHtml(s.location.address)}</p></div>
+      <button class="btn btn-orange" onclick="sellerNav('addProduct')">${t('addProductBtn')}</button></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="lbl">Total Products</div><div class="val">${active.length}</div><div class="sub">${products.length-active.length} deleted</div></div>
+      <div class="stat-card"><div class="lbl">Total Stock</div><div class="val">${totalStock.toLocaleString("en-IN")} kg</div><div class="sub">across all listings</div></div>
+      <div class="stat-card"><div class="lbl">Total Orders</div><div class="val">${orders.length}</div><div class="sub">${todayOrders.length} today</div></div>
+      <div class="stat-card orange"><div class="lbl">Pending Orders</div><div class="val">${pending}</div><div class="sub">need action</div></div>
+      <div class="stat-card"><div class="lbl">Total Customers</div><div class="val">${sellerCustomerIds().length}</div><div class="sub">unique buyers</div></div>
+      <div class="stat-card"><div class="lbl">Today's Orders</div><div class="val">${todayOrders.length}</div><div class="sub">${fmtDate(Date.now())}</div></div>
+      <div class="stat-card"><div class="lbl">Today's Sales</div><div class="val">${fmtINR(todaySales)}</div><div class="sub">gross, excl. cancelled</div></div>
+      <div class="stat-card orange"><div class="lbl">Total Revenue</div><div class="val">${fmtINR(revenue)}</div><div class="sub">all-time</div></div>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3>Sales — last 7 days</h3></div>
+        <div class="bar-chart">
+          ${last7.map(d=>`<div class="bar-col"><div class="bar-val">${d.val>0?fmtINR(d.val):""}</div><div class="bar" style="height:${Math.max(4,(d.val/maxDay)*120)}px"></div><div class="bar-lbl">${d.label}</div></div>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Top-selling products</h3></div>
+        ${topProducts.map(p=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div class="thumb-img" style="width:34px;height:34px;border-radius:8px;background:${p.grad};font-size:16px;">${productImgTag(p)}</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:700;">${escapeHtml(p.name)}</div>
+              <div style="background:var(--mint-2);border-radius:6px;height:6px;margin-top:4px;"><div style="width:${(p.salesCount/maxSales)*100}%;height:100%;background:var(--green);border-radius:6px;"></div></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);font-weight:700;">${p.salesCount} sold</div>
+          </div>`).join("") || "<p style='color:var(--muted)'>No sales yet.</p>"}
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Recent orders</h3><button class="btn btn-ghost btn-sm" onclick="sellerNav('orders')">View all →</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>
+        ${orders.slice(0,6).map(o=>`<tr><td>${o.id}</td><td>${escapeHtml(o.customerName)}</td><td>${escapeHtml(o.items.map(i=>i.name).join(", "))}</td><td>${fmtINR(o.total)}</td><td>${statusPill(o.status)}</td><td>${fmtDate(o.date)}</td></tr>`).join("") || "<tr><td colspan='6'>No orders yet</td></tr>"}
+      </tbody></table></div>
+    </div>
+  `;
+}
+
+function statusPill(status){
+  const map = {"Order Placed":"pill-gray","Confirmed":"pill-orange","Packed":"pill-orange","Out for Delivery":"pill-gold","Delivered":"pill-green","Cancelled":"pill-red","active":"pill-green","deleted":"pill-red"};
+  return `<span class="pill ${map[status]||'pill-gray'}">${status}</span>`;
+}
+
+function renderSellerProducts(){
+  const all = sellerProducts(true);
+  const q = sellerState.productSearch.toLowerCase();
+  const cat = sellerState.productCatFilter;
+  let filtered = all.filter(p => (cat==="All"||p.category===cat) && (!q || p.name.toLowerCase().includes(q) || p.subCategory.toLowerCase().includes(q)));
+  const pageSize = sellerState.pageSize;
+  const totalPages = Math.max(1, Math.ceil(filtered.length/pageSize));
+  sellerState.productsPage = Math.min(sellerState.productsPage, totalPages);
+  const pageItems = filtered.slice((sellerState.productsPage-1)*pageSize, sellerState.productsPage*pageSize);
+
+  document.getElementById("view-products").innerHTML = `
+    <div class="page-head"><div><h1>${t('myProductsHead')}</h1><p>${all.length} active listings</p></div><button class="btn btn-orange" onclick="sellerNav('addProduct')">${t('addProductBtn')}</button></div>
+    <div class="toolbar">
+      <input placeholder="Search products..." value="${escapeHtml(sellerState.productSearch)}" oninput="sellerState.productSearch=this.value; sellerState.productsPage=1; renderSellerProducts()" style="min-width:220px">
+      <select onchange="sellerState.productCatFilter=this.value; sellerState.productsPage=1; renderSellerProducts()">
+        <option ${cat==="All"?"selected":""}>All</option>
+        ${CATEGORIES.map(c=>`<option ${cat===c?"selected":""}>${c}</option>`).join("")}
+      </select>
+      <span class="pill pill-gray">${filtered.length} results</span>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th></th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      ${pageItems.map(p=>`
+        <tr>
+          <td><div class="thumb-img" style="width:34px;height:34px;border-radius:8px;background:${p.grad};">${productImgTag(p)}</div></td>
+          <td><b>${escapeHtml(p.name)}</b><br><span style="color:var(--muted);font-size:11.5px;">${escapeHtml(p.farmName)}</span></td>
+          <td>${p.category}</td>
+          <td>${fmtINR(p.price)}/${p.unit}</td>
+          <td>${p.stock} ${p.unit}</td>
+          <td>${p.salesCount}</td>
+          <td>${statusPill(p.status)}</td>
+          <td><div class="row-actions">
+            <button class="btn btn-outline btn-sm" onclick="openEditProductModal('${p.id}')">Edit</button>
+            <button class="btn btn-outline btn-sm" onclick="openUpdateStockModal('${p.id}')">Stock</button>
+            <button class="btn btn-danger btn-sm" onclick="openDeleteProductModal('${p.id}')">🗑</button>
+          </div></td>
+        </tr>`).join("") || `<tr><td colspan="8"><div class="empty-state"><div class="big">🌱</div>No products found. <a onclick="sellerNav('addProduct')" style="color:var(--green);font-weight:700;cursor:pointer;">Add your first product</a></div></td></tr>`}
+    </tbody></table></div>
+    ${renderPagination(sellerState.productsPage, totalPages, "sellerState.productsPage", "renderSellerProducts")}
+  `;
+}
+function renderPagination(page, totalPages, varName, fnName){
+  if(totalPages<=1) return "";
+  return `<div class="pagination">
+    <button class="btn btn-outline btn-sm" ${page<=1?"disabled":""} onclick="${varName}=${page-1}; ${fnName}()">← Prev</button>
+    Page ${page} of ${totalPages}
+    <button class="btn btn-outline btn-sm" ${page>=totalPages?"disabled":""} onclick="${varName}=${page+1}; ${fnName}()">Next →</button>
+  </div>`;
+}
+
+function renderDeletedProducts(){
+  const s = currentSeller();
+  const deleted = DB.products.filter(p=>p.sellerId===s.id && p.status==="deleted");
+  document.getElementById("view-deletedProducts").innerHTML = `
+    <div class="page-head"><div><h1>${t('deletedProductsHead')}</h1><p>Kept for order history — hidden from customers</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Last Stock</th><th>Status</th></tr></thead><tbody>
+    ${deleted.map(p=>`<tr><td>${escapeHtml(p.name)}</td><td>${p.category}</td><td>${fmtINR(p.price)}/${p.unit}</td><td>${p.stock} ${p.unit}</td><td>${statusPill(p.status)}</td></tr>`).join("") ||
+    `<tr><td colspan="5"><div class="empty-state"><div class="big">🗑</div>No deleted products.</div></td></tr>`}
+    </tbody></table></div>`;
+}
+
+let newProductImageData = null;
+function renderAddProductForm(){
+  document.getElementById("view-addProduct").innerHTML = `
+    <div class="page-head"><div><h1>${t('addNewProductHead')}</h1><p>List a new product for customers to buy</p></div></div>
+    <div class="panel" style="max-width:640px;">
+      <div class="field"><label>Category</label>
+        <select id="npCategory" onchange="updateSubCategoryOptions()">${CATEGORIES.map(c=>`<option>${c}</option>`).join("")}</select>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Sub-category / Product</label><select id="npSubCategory"></select></div>
+        <div class="field"><label>Display Name</label><input id="npName" placeholder="e.g. Fresh Tomatoes"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Price per unit (₹)</label><input id="npPrice" type="number" min="1" placeholder="e.g. 35"></div>
+        <div class="field"><label>Unit</label><input id="npUnit" value="kg"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Initial Stock</label><input id="npStock" type="number" min="1" placeholder="e.g. 100"></div>
+        <div class="field"><label>Minimum Order Qty</label><input id="npMinOrder" type="number" min="1" value="1"></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="npDesc" rows="3" placeholder="Describe your product..."></textarea></div>
+      <div class="field">
+        <label>${t('productImage')}</label>
+        <div class="img-upload-row">
+          <div class="img-upload-preview-fallback" id="npImagePreviewFallback">📷</div>
+          <img id="npImagePreview" class="img-upload-preview hidden">
+          <div>
+            <input type="file" id="npImageFile" accept="image/*" onchange="handleNewProductImage(event)">
+            <p style="color:var(--muted);font-size:12px;margin:6px 0 0;">${t('productImageHint')}</p>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="submitNewProduct()">＋ Add Product</button>
+    </div>
+  `;
+  newProductImageData = null;
+  updateSubCategoryOptions();
+}
+function handleNewProductImage(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  fileToDataUrl(file, dataUrl=>{
+    newProductImageData = dataUrl;
+    const img = document.getElementById("npImagePreview");
+    img.src = dataUrl;
+    img.classList.remove("hidden");
+    document.getElementById("npImagePreviewFallback").classList.add("hidden");
+  });
+}
+function updateSubCategoryOptions(){
+  const cat = document.getElementById("npCategory").value;
+  const subs = CATEGORY_DATA[cat].subs;
+  document.getElementById("npSubCategory").innerHTML = subs.map(s=>`<option>${s}</option>`).join("");
+  document.getElementById("npUnit").value = CATEGORY_DATA[cat].unit;
+}
+function submitNewProduct(){
+  const s = currentSeller();
+  const category = document.getElementById("npCategory").value;
+  const sub = document.getElementById("npSubCategory").value;
+  const name = document.getElementById("npName").value.trim() || sub;
+  const price = parseFloat(document.getElementById("npPrice").value);
+  const unit = document.getElementById("npUnit").value.trim() || "kg";
+  const stock = parseInt(document.getElementById("npStock").value, 10);
+  const minOrder = parseInt(document.getElementById("npMinOrder").value, 10) || 1;
+  const desc = document.getElementById("npDesc").value.trim() || (name + " — fresh from " + s.farmName + ".");
+  if(!price || price<=0){ toast("Price must be greater than 0", true); return; }
+  if(!stock || stock<1){ toast("Initial stock must be at least 1", true); return; }
+  const cd = CATEGORY_DATA[category];
+  const product = {
+    id: uid("PRD"), name, category, subCategory: sub, sellerId: s.id, sellerName: s.name, farmName: s.farmName,
+    price, unit, stock, minOrder, emoji: cd.emoji, grad: cd.grad, location: s.location.address,
+    image: newProductImageData || null,
+    description: desc, status:"active", dateAdded: Date.now(), rating: 0, salesCount: 0
+  };
+  DB.products.push(product); persist("products");
+  newProductImageData = null;
+  toast("Product added: " + name);
+  sellerNav("products");
+}
+
+let editProductImageData = undefined; // undefined = no change; null = cleared; string = new photo
+function openEditProductModal(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  if(!p) return;
+  editProductImageData = undefined;
+  openModal(`
+    <div class="modal-head"><h3>${t('edit')} Product</h3><button class="close-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Display Name</label><input id="epName" value="${escapeHtml(p.name)}"></div>
+      <div class="field-row">
+        <div class="field"><label>Price per ${p.unit} (₹)</label><input id="epPrice" type="number" min="1" value="${p.price}"></div>
+        <div class="field"><label>Category</label><input value="${p.category}" disabled></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="epDesc" rows="3">${escapeHtml(p.description)}</textarea></div>
+      <div class="field">
+        <label>${t('productImage')}</label>
+        <div class="img-upload-row">
+          <img id="epImagePreview" class="img-upload-preview" src="${p.image || ''}" style="${p.image ? '' : 'display:none;'}" onerror="this.style.display='none';">
+          <div id="epImageEmojiPreview" class="img-upload-preview" style="${p.image ? 'display:none;' : ''}align-items:center;justify-content:center;font-size:32px;background:${p.grad};">${p.emoji}</div>
+          <div>
+            <input type="file" id="epImageFile" accept="image/*" onchange="handleEditProductImage(event)">
+            <p style="color:var(--muted);font-size:12px;margin:6px 0 0;">${t('productImageHint')}</p>
+            ${p.image ? `<button type="button" class="btn btn-ghost btn-sm" style="margin-top:4px;padding-left:0;" onclick="clearEditProductImage('${p.id}')">Remove uploaded photo</button>` : ""}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">${t('cancel')}</button><button class="btn btn-primary" onclick="saveEditProduct('${p.id}')">${t('saveChanges')}</button></div>
+  `);
+}
+function handleEditProductImage(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  fileToDataUrl(file, dataUrl=>{
+    editProductImageData = dataUrl;
+    document.getElementById("epImagePreview").src = dataUrl;
+    document.getElementById("epImagePreview").style.display = "";
+    const emojiPrev = document.getElementById("epImageEmojiPreview");
+    if(emojiPrev) emojiPrev.style.display = "none";
+  });
+}
+function clearEditProductImage(productId){
+  editProductImageData = null;
+  document.getElementById("epImagePreview").style.display = "none";
+  const emojiPrev = document.getElementById("epImageEmojiPreview");
+  if(emojiPrev) emojiPrev.style.display = "";
+  toast("Photo will be removed on save — the emoji will show instead");
+}
+function saveEditProduct(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  const price = parseFloat(document.getElementById("epPrice").value);
+  const name = document.getElementById("epName").value.trim();
+  if(!price || price<=0){ toast("Price must be greater than 0", true); return; }
+  if(!name){ toast("Name is required", true); return; }
+  p.name = name; p.price = price; p.description = document.getElementById("epDesc").value.trim();
+  if(editProductImageData !== undefined){ p.image = editProductImageData; }
+  editProductImageData = undefined;
+  persist("products");
+  toast("Product updated");
+  closeModal();
+  renderSellerProducts();
+}
+
+function openUpdateStockModal(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  if(!p) return;
+  openModal(`
+    <div class="modal-head"><h3>Update Stock — ${escapeHtml(p.name)}</h3><button class="close-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <p style="color:var(--muted);font-size:13.5px;">Current stock: <b>${p.stock} ${p.unit}</b></p>
+      <div class="field"><label>New stock quantity (${p.unit})</label><input id="stockNewVal" type="number" min="1" value="${p.stock}"></div>
+      <p style="color:var(--muted);font-size:12px;">Stock can never be set to 0 or below — set the product to "Delete Product" instead if it's sold out for good.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveStockUpdate('${p.id}')">Update Stock</button></div>
+  `);
+}
+function saveStockUpdate(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  const val = parseInt(document.getElementById("stockNewVal").value, 10);
+  if(!val || val < 1){ toast("Stock must be at least 1 — a product can never show 0 stock.", true); return; }
+  p.stock = val;
+  persist("products");
+  toast("Stock updated to " + val + " " + p.unit);
+  closeModal();
+  renderSellerProducts(); renderStockManagement();
+}
+
+function openDeleteProductModal(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  if(!p) return;
+  openModal(`
+    <div class="modal-head"><h3>Delete Product</h3><button class="close-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete this product?</p>
+      <div class="loc-result"><b>${escapeHtml(p.name)}</b><br>Stock: ${p.stock} ${p.unit} · Price: ${fmtINR(p.price)}/${p.unit}</div>
+      <p style="color:var(--muted);font-size:12.5px;margin-top:10px;">It will disappear from the customer shop immediately. Past orders for this product stay intact.</p>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-danger" onclick="confirmDeleteProduct('${p.id}')">Delete Product</button></div>
+  `);
+}
+function confirmDeleteProduct(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  p.status = "deleted";
+  persist("products");
+  toast("Product deleted");
+  closeModal();
+  renderSellerProducts();
+}
+
+function renderStockManagement(){
+  const all = sellerProducts(true);
+  document.getElementById("view-stock").innerHTML = `
+    <div class="page-head"><div><h1>${t('stockManagementHead')}</h1><p>Every active product is listed here — stock can never reach zero</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Current Stock</th><th>Qty Sold</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+    ${all.map(p=>`
+      <tr>
+        <td>${escapeHtml(p.name)}</td><td>${p.category}</td><td>${fmtINR(p.price)}/${p.unit}</td>
+        <td><span class="pill ${p.stock<=10?'pill-orange':'pill-green'}">${p.stock} ${p.unit}</span></td>
+        <td>${p.salesCount}</td><td>${statusPill(p.status)}</td>
+        <td><div class="row-actions">
+          <button class="btn btn-outline btn-sm" onclick="openUpdateStockModal('${p.id}')">Update Stock</button>
+          <button class="btn btn-danger btn-sm" onclick="openDeleteProductModal('${p.id}')">Delete</button>
+        </div></td>
+      </tr>`).join("") || `<tr><td colspan="7"><div class="empty-state"><div class="big">📊</div>No products yet.</div></td></tr>`}
+    </tbody></table></div>
+  `;
+}
+
+function renderSellerOrders(){
+  let orders = sellerOrders();
+  const filter = sellerState.orderStatusFilter;
+  if(filter!=="All") orders = orders.filter(o=>o.status===filter);
+  const pageSize = sellerState.pageSize;
+  const totalPages = Math.max(1, Math.ceil(orders.length/pageSize));
+  sellerState.ordersPage = Math.min(sellerState.ordersPage, totalPages);
+  const pageItems = orders.slice((sellerState.ordersPage-1)*pageSize, sellerState.ordersPage*pageSize);
+  const statuses = ["All",...ORDER_STATUS_FLOW,"Cancelled"];
+  document.getElementById("view-orders").innerHTML = `
+    <div class="page-head"><div><h1>${t('ordersHead')}</h1><p>${orders.length} orders${filter!=="All"?" · "+filter:""}</p></div></div>
+    <div class="chip-row">${statuses.map(st=>`<div class="chip ${filter===st?'active':''}" onclick="sellerState.orderStatusFilter='${st}'; sellerState.ordersPage=1; renderSellerOrders()">${st}</div>`).join("")}</div>
+    <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Products</th><th>Total</th><th>Payment</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody>
+    ${pageItems.map(o=>`
+      <tr>
+        <td><a onclick="openOrderDetailModal('${o.id}')" style="color:var(--green);font-weight:700;cursor:pointer;">${o.id}</a></td>
+        <td>${escapeHtml(o.customerName)}<br><span style="color:var(--muted);font-size:11.5px;">${escapeHtml(o.customerPhone)}</span></td>
+        <td>${escapeHtml(o.items.map(i=>i.name+" ×"+i.qty).join(", "))}</td>
+        <td>${fmtINR(o.total)}</td><td>${o.paymentMethod}</td><td>${fmtDate(o.date)}</td>
+        <td>${statusPill(o.status)}</td>
+        <td>${o.status==="Delivered"||o.status==="Cancelled" ? "—" : `<select onchange="updateOrderStatus('${o.id}', this.value)" style="padding:5px;border-radius:6px;border:1px solid var(--border);font-size:12px;">
+          <option value="">Update…</option>${ORDER_STATUS_FLOW.filter(s=>ORDER_STATUS_FLOW.indexOf(s)>ORDER_STATUS_FLOW.indexOf(o.status)).map(s=>`<option value="${s}">${s}</option>`).join("")}<option value="Cancelled">Cancelled</option>
+        </select>`}</td>
+      </tr>`).join("") || `<tr><td colspan="8"><div class="empty-state"><div class="big">🛒</div>No orders found.</div></td></tr>`}
+    </tbody></table></div>
+    ${renderPagination(sellerState.ordersPage, totalPages, "sellerState.ordersPage", "renderSellerOrders")}
+  `;
+}
+function updateOrderStatus(orderId, newStatus){
+  if(!newStatus) return;
+  const o = DB.orders.find(x=>x.id===orderId);
+  o.status = newStatus;
+  o.statusHistory.push({status:newStatus, at: Date.now()});
+  persist("orders");
+  toast("Order " + orderId + " marked as " + newStatus);
+  renderSellerOrders(); renderSellerDashboard();
+}
+function openOrderDetailModal(orderId){
+  const o = DB.orders.find(x=>x.id===orderId);
+  openModal(`
+    <div class="modal-head"><h3>Order ${o.id}</h3><button class="close-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <p><b>Customer:</b> ${escapeHtml(o.customerName)} · ${escapeHtml(o.customerPhone)}</p>
+      <p><b>Items:</b> ${o.items.map(i=>`${escapeHtml(i.name)} — ${i.qty}${i.unit||''} × ${fmtINR(i.price)} = ${fmtINR(i.subtotal)}`).join("<br>")}</p>
+      <p><b>Delivery:</b> 📍 ${escapeHtml(o.deliveryLocation.address)} (${o.deliveryLocation.lat.toFixed(4)}, ${o.deliveryLocation.lng.toFixed(4)})</p>
+      <p><b>Payment:</b> ${o.paymentMethod} · <b>Total:</b> ${fmtINR(o.total)}</p>
+      <p><b>Status:</b> ${statusPill(o.status)}</p>
+      <a href="https://www.google.com/maps/search/?api=1&query=${o.deliveryLocation.lat},${o.deliveryLocation.lng}" target="_blank" class="btn btn-outline btn-sm">Open in Google Maps</a>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>
+  `);
+}
+
+function renderSellerCustomers(){
+  const custIds = sellerCustomerIds();
+  const custs = custIds.map(id=>DB.customers.find(c=>c.id===id)).filter(Boolean);
+  document.getElementById("view-customers").innerHTML = `
+    <div class="page-head"><div><h1>${t('customersHead')}</h1><p>${custs.length} customers have ordered from you</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Last Order</th><th>Location</th><th></th></tr></thead><tbody>
+    ${custs.map(c=>{
+      const custOrders = sellerOrders().filter(o=>o.customerId===c.id);
+      const spent = custOrders.reduce((s,o)=>s+(o.status!=="Cancelled"?o.total:0),0);
+      const last = custOrders[0];
+      return `<tr>
+        <td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.phone)}</td><td>${custOrders.length}</td>
+        <td>${fmtINR(spent)}</td><td>${last?fmtDate(last.date):"—"}</td><td>${escapeHtml(c.location.address)}</td>
+        <td><button class="btn btn-outline btn-sm" onclick="openCustomerDetailModal('${c.id}')">View</button></td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="7"><div class="empty-state"><div class="big">👥</div>No customers yet.</div></td></tr>`}
+    </tbody></table></div>
+  `;
+}
+function openCustomerDetailModal(custId){
+  const c = DB.customers.find(x=>x.id===custId);
+  const orders = sellerOrders().filter(o=>o.customerId===custId);
+  const spent = orders.reduce((s,o)=>s+(o.status!=="Cancelled"?o.total:0),0);
+  openModal(`
+    <div class="modal-head"><h3>${escapeHtml(c.name)}</h3><button class="close-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <p>📞 ${escapeHtml(c.phone)} &nbsp; ✉️ ${escapeHtml(c.email)}</p>
+      <p>📍 ${escapeHtml(c.location.address)}</p>
+      <p><b>${orders.length}</b> orders with you · <b>${fmtINR(spent)}</b> total spend</p>
+      <div class="table-wrap"><table><thead><tr><th>Order</th><th>Products</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>
+        ${orders.map(o=>`<tr><td>${o.id}</td><td>${escapeHtml(o.items.map(i=>i.name).join(", "))}</td><td>${fmtINR(o.total)}</td><td>${statusPill(o.status)}</td><td>${fmtDate(o.date)}</td></tr>`).join("")}
+      </tbody></table></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Close</button></div>
+  `, true);
+}
+
+function renderSellerAnalytics(){
+  const products = sellerProducts(true);
+  const byCat = {};
+  products.forEach(p=>{ byCat[p.category] = (byCat[p.category]||0) + p.salesCount; });
+  const maxCat = Math.max(1, ...Object.values(byCat));
+  const orders = sellerOrders();
+  const byMonth = {};
+  orders.filter(o=>o.status!=="Cancelled").forEach(o=>{
+    const key = new Date(o.date).toLocaleDateString("en-IN",{month:"short"});
+    byMonth[key] = (byMonth[key]||0) + o.total;
+  });
+  const maxMonth = Math.max(1, ...Object.values(byMonth));
+  document.getElementById("view-analytics").innerHTML = `
+    <div class="page-head"><div><h1>${t('salesAnalyticsHead')}</h1><p>Performance across your catalog</p></div></div>
+    <div class="two-col">
+      <div class="panel"><div class="panel-head"><h3>Sales by category</h3></div>
+        <div class="bar-chart">${Object.entries(byCat).map(([k,v])=>`<div class="bar-col"><div class="bar-val">${v}</div><div class="bar" style="height:${Math.max(4,(v/maxCat)*120)}px"></div><div class="bar-lbl">${k}</div></div>`).join("")}</div>
+      </div>
+      <div class="panel"><div class="panel-head"><h3>Revenue by month</h3></div>
+        <div class="bar-chart">${Object.entries(byMonth).map(([k,v])=>`<div class="bar-col"><div class="bar-val">${fmtINR(v)}</div><div class="bar" style="height:${Math.max(4,(v/maxMonth)*120)}px"></div><div class="bar-lbl">${k}</div></div>`).join("")}</div>
+      </div>
+    </div>
+    <div class="panel"><div class="panel-head"><h3>Stock levels</h3></div>
+      <div class="table-wrap"><table><thead><tr><th>Product</th><th>Stock</th><th>Sold</th></tr></thead><tbody>
+      ${[...products].sort((a,b)=>a.stock-b.stock).slice(0,10).map(p=>`<tr><td>${escapeHtml(p.name)}</td><td><span class="pill ${p.stock<=10?'pill-orange':'pill-green'}">${p.stock} ${p.unit}</span></td><td>${p.salesCount}</td></tr>`).join("")}
+      </tbody></table></div>
+    </div>
+  `;
+}
+
+function renderSellerPayments(){
+  const s = currentSeller();
+  document.getElementById("view-payments").innerHTML = `
+    <div class="page-head"><div><h1>${t('paymentsHead')}</h1><p>Your UPI ID is used to generate QR codes shown to customers at checkout</p></div></div>
+    <div class="panel" style="max-width:480px;">
+      <div class="field"><label>UPI ID</label><input id="sellerUpiInput" value="${escapeHtml(s.upiId)}"></div>
+      <button class="btn btn-primary" onclick="saveSellerUpi()">Save UPI ID</button>
+      <div class="demo-box" style="margin-top:16px;">Customers paying by UPI will scan a QR code generated from <b>upi://pay?pa=${escapeHtml(s.upiId)}&pn=${encodeURIComponent(s.name)}&am=AMOUNT&cu=INR</b></div>
+    </div>
+  `;
+}
+function saveSellerUpi(){
+  const s = currentSeller();
+  const val = document.getElementById("sellerUpiInput").value.trim();
+  if(!val.includes("@")){ toast("Enter a valid UPI ID (e.g. name@bank)", true); return; }
+  s.upiId = val; persist("sellers");
+  toast("UPI ID updated");
+}
+
+function renderSellerLocation(){
+  const s = currentSeller();
+  document.getElementById("view-location").innerHTML = `
+    <div class="page-head"><div><h1>${t('farmLocationHead')}</h1><p>Shown to customers for delivery route calculation</p></div></div>
+    <div class="panel" style="max-width:520px;">
+      <div class="field"><label>Address</label><input id="farmAddrInput" value="${escapeHtml(s.location.address)}"></div>
+      <div class="field-row">
+        <div class="field"><label>Latitude</label><input id="farmLatInput" value="${s.location.lat.toFixed(5)}"></div>
+        <div class="field"><label>Longitude</label><input id="farmLngInput" value="${s.location.lng.toFixed(5)}"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSellerLocation()">Save Location</button>
+    </div>
+  `;
+}
+function saveSellerLocation(){
+  const s = currentSeller();
+  s.location = { address: document.getElementById("farmAddrInput").value.trim(), lat: parseFloat(document.getElementById("farmLatInput").value), lng: parseFloat(document.getElementById("farmLngInput").value) };
+  persist("sellers");
+  toast("Farm location updated");
+}
+
+function renderSellerProfile(){
+  const s = currentSeller();
+  document.getElementById("view-profile").innerHTML = `
+    <div class="page-head"><div><h1>${t('sellerProfileHead')}</h1></div></div>
+    <div class="panel" style="max-width:520px;">
+      <div class="field"><label>Full Name</label><input id="spName" value="${escapeHtml(s.name)}"></div>
+      <div class="field"><label>Farm Name</label><input id="spFarm" value="${escapeHtml(s.farmName)}"></div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input id="spPhone" value="${escapeHtml(s.phone)}"></div>
+        <div class="field"><label>Email</label><input id="spEmail" value="${escapeHtml(s.email)}"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSellerProfile()">Save Profile</button>
+    </div>
+  `;
+}
+function saveSellerProfile(){
+  const s = currentSeller();
+  s.name = document.getElementById("spName").value.trim();
+  s.farmName = document.getElementById("spFarm").value.trim();
+  s.phone = document.getElementById("spPhone").value.trim();
+  s.email = document.getElementById("spEmail").value.trim();
+  persist("sellers");
+  document.getElementById("sellerAvatar").textContent = s.name.charAt(0).toUpperCase();
+  toast("Profile updated");
+}
+function renderSellerSettings(){
+  document.getElementById("view-settings").innerHTML = `
+    <div class="page-head"><div><h1>${t('settingsHead')}</h1></div></div>
+    <div class="panel" style="max-width:520px;">
+      <div class="field"><label>Language</label><select><option>English</option><option>తెలుగు (Telugu)</option><option>हिन्दी (Hindi)</option><option>தமிழ் (Tamil)</option></select></div>
+      <div class="field"><label>Order notifications</label><select><option>Enabled</option><option>Disabled</option></select></div>
+      <button class="btn btn-primary" onclick="toast('Settings saved')">Save Settings</button>
+    </div>
+  `;
+}
+/* ==========================================================================
+   CUSTOMER PORTAL
+   ========================================================================== */
+let customerState = { shopPage:1, pageSize:24, search:"", category:"All", sort:"newest", minPrice:"", maxPrice:"", qtySel:{} /* productId -> qty */ };
+
+function activeProductsList(){ return DB.products.filter(p=>p.status==="active"); }
+function getCart(){ const c = currentCustomer(); return DB.carts[c.id] || []; }
+function setCart(items){ const c = currentCustomer(); DB.carts[c.id] = items; persist("carts"); updateCartBadge(); }
+function updateCartBadge(){
+  const items = getCart();
+  const count = items.reduce((s,i)=>s+i.qty,0);
+  const el = document.getElementById("cartCountBadge"); if(el) el.textContent = count;
+}
+function getWishlist(){ const c = currentCustomer(); return DB.wishlists[c.id] || []; }
+function toggleWishlist(productId){
+  const c = currentCustomer();
+  let list = DB.wishlists[c.id] || [];
+  if(list.includes(productId)) list = list.filter(id=>id!==productId);
+  else list.push(productId);
+  DB.wishlists[c.id] = list; persist("wishlists");
+  renderProductGridInPlace();
+}
+
+function customerNav(view){
+  customerState.currentView = view;
+  document.querySelectorAll("#customerSidebar .nav-item").forEach(el=>el.classList.toggle("active", el.dataset.view===view));
+  document.querySelectorAll("#customerApp .view").forEach(el=>el.classList.remove("active"));
+  document.getElementById("view-c-"+view).classList.add("active");
+  const renderMap = {
+    home: renderCustomerHome, shop: renderCustomerShop, categories: renderCustomerCategories,
+    cart: renderCustomerCart, orders: renderCustomerOrders, locations: renderCustomerLocations,
+    paymentsC: renderCustomerPayments, wishlist: renderCustomerWishlist, profileC: renderCustomerProfile
+  };
+  if(renderMap[view]) renderMap[view]();
+  document.getElementById("customerSidebar").classList.remove("open");
+}
+function customerSearchInput(q){ customerState.search=q; customerState.shopPage=1; customerNav("shop"); }
+
+function renderCustomerHome(){
+  const c = currentCustomer();
+  const all = activeProductsList();
+  const featured = [...all].sort((a,b)=>b.salesCount-a.salesCount).slice(0,8);
+  document.getElementById("view-c-home").innerHTML = `
+    <div class="page-head"><div><h1>Hey ${escapeHtml(c.name.split(" ")[0])}, what's fresh today? 🌿</h1><p>${all.length}+ products from ${new Set(all.map(p=>p.sellerId)).size} local farmers</p></div>
+      <button class="btn btn-orange" onclick="customerNav('shop')">🛍️ Browse Shop</button></div>
+    <div class="chip-row">
+      <div class="chip active" onclick="customerState.category='All';customerNav('shop')">All</div>
+      ${CATEGORIES.map(c2=>`<div class="chip" onclick="customerState.category='${c2}';customerNav('shop')">${CATEGORY_DATA[c2].emoji} ${c2}</div>`).join("")}
+    </div>
+    <div class="panel-head" style="margin-top:6px;"><h3>Popular right now</h3><button class="btn btn-ghost btn-sm" onclick="customerNav('shop')">See all →</button></div>
+    <div class="product-grid" id="homeGrid"></div>
+  `;
+  renderProductCards(featured, "homeGrid");
+}
+
+function renderCustomerCategories(){
+  document.getElementById("view-c-categories").innerHTML = `
+    <div class="page-head"><div><h1>${t('categoriesHead')}</h1></div></div>
+    <div class="product-grid">
+      ${CATEGORIES.map(c=>{
+        const cnt = activeProductsList().filter(p=>p.category===c).length;
+        return `<div class="pcard" style="cursor:pointer;" onclick="customerState.category='${c}';customerNav('shop')">
+          <div class="pcard-img" style="background:${CATEGORY_DATA[c].grad}">${CATEGORY_DATA[c].emoji}</div>
+          <div class="pcard-body"><div class="pcard-name">${c}</div><div class="pcard-seller">${cnt} products</div></div>
+        </div>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderCustomerShop(){
+  const st = customerState;
+  document.getElementById("view-c-shop").innerHTML = `
+    <div class="page-head"><div><h1>${t('shopHead')}</h1><p>Fresh produce from local farmers, delivered to your door</p></div></div>
+    <div class="chip-row">
+      ${["All",...CATEGORIES].map(c=>`<div class="chip ${st.category===c?'active':''}" onclick="customerState.category='${c}';customerState.shopPage=1;renderCustomerShop()">${c==="All"?"":CATEGORY_DATA[c].emoji+" "}${c}</div>`).join("")}
+    </div>
+    <div class="toolbar">
+      <input placeholder="Search products or sellers..." value="${escapeHtml(st.search)}" oninput="customerState.search=this.value;customerState.shopPage=1;renderCustomerShop()" style="min-width:220px;">
+      <input type="number" placeholder="Min ₹" value="${st.minPrice}" oninput="customerState.minPrice=this.value;customerState.shopPage=1;renderCustomerShop()" style="width:90px;">
+      <input type="number" placeholder="Max ₹" value="${st.maxPrice}" oninput="customerState.maxPrice=this.value;customerState.shopPage=1;renderCustomerShop()" style="width:90px;">
+      <select onchange="customerState.sort=this.value;renderCustomerShop()">
+        <option value="newest" ${st.sort==="newest"?"selected":""}>Newest first</option>
+        <option value="priceLow" ${st.sort==="priceLow"?"selected":""}>Price: Low to High</option>
+        <option value="priceHigh" ${st.sort==="priceHigh"?"selected":""}>Price: High to Low</option>
+        <option value="popular" ${st.sort==="popular"?"selected":""}>Most popular</option>
+      </select>
+      <span class="pill pill-gray" id="shopResultCount"></span>
+    </div>
+    <div class="product-grid" id="shopGrid"></div>
+    <div id="shopPagination"></div>
+  `;
+  renderShopResults();
+}
+function filteredShopProducts(){
+  const st = customerState;
+  const q = st.search.toLowerCase();
+  let items = activeProductsList().filter(p=>{
+    if(st.category!=="All" && p.category!==st.category) return false;
+    if(q && !(p.name.toLowerCase().includes(q) || p.sellerName.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.subCategory.toLowerCase().includes(q))) return false;
+    if(st.minPrice && p.price < parseFloat(st.minPrice)) return false;
+    if(st.maxPrice && p.price > parseFloat(st.maxPrice)) return false;
+    return true;
+  });
+  if(st.sort==="priceLow") items.sort((a,b)=>a.price-b.price);
+  else if(st.sort==="priceHigh") items.sort((a,b)=>b.price-a.price);
+  else if(st.sort==="popular") items.sort((a,b)=>b.salesCount-a.salesCount);
+  else items.sort((a,b)=>b.dateAdded-a.dateAdded);
+  return items;
+}
+function renderShopResults(){
+  const items = filteredShopProducts();
+  const pageSize = customerState.pageSize;
+  const totalPages = Math.max(1, Math.ceil(items.length/pageSize));
+  customerState.shopPage = Math.min(customerState.shopPage, totalPages);
+  const pageItems = items.slice((customerState.shopPage-1)*pageSize, customerState.shopPage*pageSize);
+  document.getElementById("shopResultCount").textContent = items.length + " results";
+  renderProductCards(pageItems, "shopGrid");
+  document.getElementById("shopPagination").innerHTML = renderPagination(customerState.shopPage, totalPages, "customerState.shopPage", "renderShopResults");
+}
+function renderProductGridInPlace(){
+  if(document.getElementById("shopGrid")) renderShopResults();
+  if(document.getElementById("homeGrid")) renderCustomerHome();
+}
+
+function renderProductCards(items, containerId){
+  const wishlist = getWishlist();
+  document.getElementById(containerId).innerHTML = items.map(p=>{
+    const maxQty = Math.max(0, p.stock - 1); // at least 1 unit must always remain
+    const sel = Math.min(customerState.qtySel[p.id] || p.minOrder || 1, Math.max(1,maxQty));
+    const isWished = wishlist.includes(p.id);
+    const disabled = maxQty < 1;
+    return `
+    <div class="pcard">
+      <div class="pcard-img" style="background:${p.grad}">
+        ${productImgTag(p)}
+        <div class="wish" onclick="toggleWishlist('${p.id}')" style="cursor:pointer;">${isWished?"❤️":"🤍"}</div>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">${p.category}</div>
+        <div class="pcard-name">${escapeHtml(p.name)}</div>
+        <div class="pcard-seller">👨‍🌾 ${escapeHtml(p.sellerName)} · ${escapeHtml(p.location)}</div>
+        <div class="pcard-price">${fmtINR(p.price)} <small>/ ${p.unit}</small></div>
+        <div class="pcard-stock">Available: <b>${p.stock} ${p.unit}</b>${p.stock<=15?' <span style="color:var(--orange-dark);font-weight:700;">· Low stock</span>':''}</div>
+        <div class="qty-row">
+          <button onclick="changeCardQty('${p.id}', -1, ${maxQty})" ${sel<= (p.minOrder||1) ?"disabled":""}>−</button>
+          <div class="qval">${disabled?0:sel} ${p.unit}</div>
+          <button onclick="changeCardQty('${p.id}', 1, ${maxQty})" ${sel>=maxQty||disabled?"disabled":""}>＋</button>
+        </div>
+        <div class="pcard-total">Total: <b id="ptotal-${p.id}">${fmtINR((disabled?0:sel)*p.price)}</b></div>
+        <button class="btn btn-primary btn-block btn-sm" style="margin-top:6px;" ${disabled?"disabled":""} onclick="addToCart('${p.id}')">${disabled?"Out of stock":"Add to Cart"}</button>
+      </div>
+    </div>`;
+  }).join("") || `<div class="empty-state"><div class="big">🔍</div>No products match your search.</div>`;
+}
+function changeCardQty(productId, delta, maxQty){
+  const p = DB.products.find(x=>x.id===productId);
+  const min = p.minOrder || 1;
+  let cur = customerState.qtySel[productId] || min;
+  cur += delta;
+  if(cur < min) cur = min;
+  if(cur > maxQty) cur = maxQty; // NEVER allow buying the last unit — stock-1 is the ceiling
+  customerState.qtySel[productId] = cur;
+  const qEl = document.querySelector(`#ptotal-${productId}`).closest(".pcard-body").querySelector(".qval");
+  qEl.textContent = cur + " " + p.unit;
+  document.getElementById("ptotal-"+productId).textContent = fmtINR(cur*p.price);
+  const btns = qEl.parentElement.querySelectorAll("button");
+  btns[0].disabled = cur<=min; btns[1].disabled = cur>=maxQty;
+}
+function addToCart(productId){
+  const p = DB.products.find(x=>x.id===productId);
+  const maxQty = Math.max(0, p.stock - 1);
+  if(maxQty < 1){ toast("This product is out of purchasable stock", true); return; }
+  const qty = Math.min(customerState.qtySel[productId] || p.minOrder || 1, maxQty);
+  let cart = getCart();
+  const existing = cart.find(i=>i.productId===productId);
+  if(existing){
+    const newQty = Math.min(existing.qty + qty, maxQty);
+    if(newQty === existing.qty){ toast("You've already got the max available quantity in your cart", true); return; }
+    existing.qty = newQty;
+  } else {
+    cart.push({productId, qty});
+  }
+  setCart(cart);
+  toast(qty + " " + p.unit + " of " + p.name + " added to cart");
+}
+
+function renderCustomerCart(){
+  const cart = getCart();
+  const rows = cart.map(item=>{
+    const p = DB.products.find(x=>x.id===item.productId);
+    if(!p) return null;
+    return {item, p};
+  }).filter(Boolean);
+  const subtotal = rows.reduce((s,r)=>s+r.item.qty*r.p.price,0);
+  const deliveryFee = rows.length ? CONFIG.DELIVERY_FEE : 0;
+  const total = subtotal + deliveryFee;
+  document.getElementById("view-c-cart").innerHTML = `
+    <div class="page-head"><div><h1>${t('myCartHead')}</h1><p>${rows.length} item(s)</p></div></div>
+    ${rows.length===0 ? `<div class="empty-state"><div class="big">🛒</div>Your cart is empty. <a onclick="customerNav('shop')" style="color:var(--green);font-weight:700;cursor:pointer;">Start shopping</a></div>` : `
+    <div class="two-col">
+      <div class="panel">
+        ${rows.map(({item,p})=>{
+          const maxQty = Math.max(1, p.stock - 1);
+          return `<div class="cart-row">
+            <div class="cart-emoji" style="background:${p.grad}">${productImgTag(p)}</div>
+            <div><b>${escapeHtml(p.name)}</b><br><span style="font-size:11.5px;color:var(--muted);">${escapeHtml(p.sellerName)}</span></div>
+            <div class="qty-row"><button onclick="changeCartQty('${p.id}',-1)">−</button><div class="qval">${item.qty}</div><button onclick="changeCartQty('${p.id}',1)" ${item.qty>=maxQty?"disabled":""}>＋</button></div>
+            <div>${fmtINR(p.price)}/${p.unit}</div>
+            <div><b>${fmtINR(item.qty*p.price)}</b></div>
+            <button class="icon-btn" onclick="removeFromCart('${p.id}')" title="Remove">🗑</button>
+          </div>`;
+        }).join("")}
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Order Summary</h3></div>
+        <div class="cart-summary-line"><span>Subtotal</span><span>${fmtINR(subtotal)}</span></div>
+        <div class="cart-summary-line"><span>Delivery Fee</span><span>${fmtINR(deliveryFee)}</span></div>
+        <div class="cart-summary-line total"><span>Total</span><span>${fmtINR(total)}</span></div>
+        <button class="btn btn-orange btn-block" style="margin-top:14px;" onclick="startCheckout()">Proceed to Checkout →</button>
+      </div>
+    </div>`}
+  `;
+}
+function changeCartQty(productId, delta){
+  const p = DB.products.find(x=>x.id===productId);
+  const maxQty = Math.max(1, p.stock - 1);
+  let cart = getCart();
+  const item = cart.find(i=>i.productId===productId);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty < 1) item.qty = 1;
+  if(item.qty > maxQty){ item.qty = maxQty; toast("Maximum purchasable quantity is " + maxQty + " " + p.unit + " (1 must remain in stock)", true); }
+  setCart(cart);
+  renderCustomerCart();
+}
+function removeFromCart(productId){
+  setCart(getCart().filter(i=>i.productId!==productId));
+  renderCustomerCart();
+  toast("Removed from cart");
+}
+
+/* ---------------- CHECKOUT FLOW ---------------- */
+let checkoutState = { step:1, location:null, paymentMethod:"UPI" };
+function startCheckout(){
+  if(getCart().length===0){ toast("Your cart is empty", true); return; }
+  const c = currentCustomer();
+  checkoutState = { step:1, location: {lat:c.location.lat, lng:c.location.lng, address:c.location.address}, paymentMethod:"UPI" };
+  renderCheckoutModal();
+}
+function renderCheckoutModal(){
+  const step = checkoutState.step;
+  openModal(`
+    <div class="modal-head"><h3>Checkout</h3><button class="close-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="step-track">
+        <div class="step-dot ${step>1?'done':'active'}">1</div><div class="step-line"></div>
+        <div class="step-dot ${step>2?'done':step===2?'active':''}">2</div><div class="step-line"></div>
+        <div class="step-dot ${step===3?'active':''}">3</div>
+      </div>
+      <div id="checkoutStepBody"></div>
+    </div>
+  `, true);
+  if(step===1) renderCheckoutLocationStep();
+  else if(step===2) renderCheckoutPaymentStep();
+  else renderCheckoutSummaryStep();
+}
+function renderCheckoutLocationStep(){
+  document.getElementById("checkoutStepBody").innerHTML = `
+    <h4 style="margin:0 0 6px;">📍 Delivery Location</h4>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 12px;">Choose exactly where we should deliver your order.</p>
+    <div class="loc-option-btns">
+      <button class="btn btn-outline btn-sm" onclick="useCurrentLocation()">📡 Use current location</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('geoSearchInput').focus()">🔎 Search location</button>
+    </div>
+    <div class="field"><input id="geoSearchInput" placeholder="Search for an address, area or landmark..." oninput="handleGeoSearch(this.value)"></div>
+    <div id="geoSuggestBox"></div>
+    <div id="mapPicker" style="margin-top:12px;"></div>
+    <div class="loc-result" id="locResultBox">${checkoutState.location ? locResultHtml(checkoutState.location) : "No location selected yet."}</div>
+    <div class="modal-foot" style="margin:16px -22px -20px;">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="checkoutState.step=2; renderCheckoutModal()" ${!checkoutState.location?"disabled":""}>Continue to Payment →</button>
+    </div>
+  `;
+  initMapPicker();
+}
+function locResultHtml(loc){
+  return `📍 <b>Location Selected</b><br>${escapeHtml(loc.address)}<br><span style="color:var(--muted);">Lat: ${loc.lat.toFixed(5)}, Lng: ${loc.lng.toFixed(5)}</span>`;
+}
+let pickerMap, pickerMarker;
+function initMapPicker(){
+  setTimeout(()=>{
+    const el = document.getElementById("mapPicker");
+    if(!el || typeof L === "undefined") return;
+    const loc = checkoutState.location;
+    pickerMap = L.map("mapPicker").setView([loc.lat, loc.lng], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors', maxZoom: 18 }).addTo(pickerMap);
+    pickerMarker = L.marker([loc.lat, loc.lng], {draggable:true}).addTo(pickerMap);
+    pickerMarker.on("dragend", function(){
+      const pos = pickerMarker.getLatLng();
+      reverseGeocode(pos.lat, pos.lng);
+    });
+    pickerMap.on("click", function(e){
+      pickerMarker.setLatLng(e.latlng);
+      reverseGeocode(e.latlng.lat, e.latlng.lng);
+    });
+  }, 60);
+}
+function useCurrentLocation(){
+  if(!navigator.geolocation){ toast("Geolocation not supported by this browser", true); return; }
+  toast("Fetching your current location...");
+  navigator.geolocation.getCurrentPosition(function(pos){
+    reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+    if(pickerMap){ pickerMap.setView([pos.coords.latitude,pos.coords.longitude],14); pickerMarker.setLatLng([pos.coords.latitude,pos.coords.longitude]); }
+  }, function(){ toast("Could not get your location — please search or drop a pin instead", true); });
+}
+function reverseGeocode(lat, lng){
+  checkoutState.location = { lat, lng, address: "Locating address..." };
+  document.getElementById("locResultBox").innerHTML = locResultHtml(checkoutState.location);
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+    .then(r=>r.json()).then(data=>{
+      checkoutState.location = { lat, lng, address: (data && data.display_name) ? data.display_name : (lat.toFixed(5)+", "+lng.toFixed(5)) };
+      document.getElementById("locResultBox").innerHTML = locResultHtml(checkoutState.location);
+    }).catch(()=>{
+      checkoutState.location = { lat, lng, address: lat.toFixed(5)+", "+lng.toFixed(5) };
+      document.getElementById("locResultBox").innerHTML = locResultHtml(checkoutState.location);
+    });
+}
+let geoSearchTimer;
+function handleGeoSearch(q){
+  clearTimeout(geoSearchTimer);
+  if(!q || q.length<3){ document.getElementById("geoSuggestBox").innerHTML=""; return; }
+  geoSearchTimer = setTimeout(()=>{
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`)
+      .then(r=>r.json()).then(results=>{
+        document.getElementById("geoSuggestBox").innerHTML = `<div class="geo-suggest">${
+          (results||[]).map(r=>`<div onclick='selectGeoResult(${r.lat},${r.lon},${JSON.stringify(r.display_name)})'>${escapeHtml(r.display_name)}</div>`).join("") || "<div>No matches found</div>"
+        }</div>`;
+      }).catch(()=>{ document.getElementById("geoSuggestBox").innerHTML = "<div class='loc-result'>Search unavailable — drop a pin on the map instead.</div>"; });
+  }, 450);
+}
+function selectGeoResult(lat, lng, address){
+  checkoutState.location = { lat:parseFloat(lat), lng:parseFloat(lng), address };
+  document.getElementById("locResultBox").innerHTML = locResultHtml(checkoutState.location);
+  document.getElementById("geoSuggestBox").innerHTML = "";
+  if(pickerMap){ pickerMap.setView([lat,lng],14); pickerMarker.setLatLng([lat,lng]); }
+}
+
+function renderCheckoutPaymentStep(){
+  const cart = getCart();
+  const total = cart.reduce((s,i)=>{ const p=DB.products.find(x=>x.id===i.productId); return s + (p?p.price*i.qty:0); },0) + CONFIG.DELIVERY_FEE;
+  document.getElementById("checkoutStepBody").innerHTML = `
+    <h4 style="margin:0 0 12px;">💳 Payment Method</h4>
+    <div class="pay-option ${checkoutState.paymentMethod==='UPI'?'selected':''}" onclick="selectPayment('UPI')"><div class="radio"></div><div>📱 <b>UPI</b> — Scan QR to pay ${fmtINR(total)}</div></div>
+    <div class="pay-option ${checkoutState.paymentMethod==='CARD'?'selected':''}" onclick="selectPayment('CARD')"><div class="radio"></div><div>💳 <b>Card</b> — Debit / Credit card (demo)</div></div>
+    <div class="pay-option ${checkoutState.paymentMethod==='COD'?'selected':''}" onclick="selectPayment('COD')"><div class="radio"></div><div>💵 <b>Cash on Delivery</b></div></div>
+    <div id="paymentExtra"></div>
+    <div class="modal-foot" style="margin:16px -22px -20px;">
+      <button class="btn btn-ghost" onclick="checkoutState.step=1; renderCheckoutModal()">← Back</button>
+      <button class="btn btn-primary" onclick="checkoutState.step=3; renderCheckoutModal()">Review Order →</button>
+    </div>
+  `;
+  renderPaymentExtra();
+}
+function selectPayment(method){ checkoutState.paymentMethod = method; renderCheckoutPaymentStep(); }
+function renderPaymentExtra(){
+  const box = document.getElementById("paymentExtra");
+  if(checkoutState.paymentMethod==="CARD"){
+    box.innerHTML = `
+      <div class="field-row" style="margin-top:10px;">
+        <div class="field"><label>Card Number</label><input placeholder="4242 4242 4242 4242" maxlength="19"></div>
+        <div class="field"><label>Name on Card</label><input placeholder="Full name"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Expiry</label><input placeholder="MM/YY"></div>
+        <div class="field"><label>CVV</label><input placeholder="•••" maxlength="3"></div>
+      </div>
+      <p style="color:var(--muted);font-size:11.5px;">Demo interface only — no real card data is stored or processed.</p>
+    `;
+  } else if(checkoutState.paymentMethod==="COD"){
+    box.innerHTML = `<p style="color:var(--muted);font-size:13px;margin-top:10px;">Pay in cash when your order is delivered.</p>`;
+  } else box.innerHTML = "";
+}
+
+function renderCheckoutSummaryStep(){
+  const cart = getCart();
+  const rows = cart.map(i=>{ const p = DB.products.find(x=>x.id===i.productId); return {p,i}; }).filter(r=>r.p);
+  const bySeller = {};
+  rows.forEach(r=>{ (bySeller[r.p.sellerId] = bySeller[r.p.sellerId]||[]).push(r); });
+  const subtotal = rows.reduce((s,r)=>s+r.p.price*r.i.qty,0);
+  const sellerCount = Object.keys(bySeller).length;
+  const deliveryFee = CONFIG.DELIVERY_FEE * sellerCount;
+  const total = subtotal + deliveryFee;
+  document.getElementById("checkoutStepBody").innerHTML = `
+    <h4 style="margin:0 0 12px;">🧾 Order Summary</h4>
+    ${Object.entries(bySeller).map(([sellerId, items])=>{
+      const sellerName = items[0].p.sellerName;
+      return `<div class="loc-result" style="margin-bottom:10px;">
+        <b>👨‍🌾 ${escapeHtml(sellerName)}</b><br>
+        ${items.map(r=>`${escapeHtml(r.p.name)} — ${r.i.qty}${r.p.unit} × ${fmtINR(r.p.price)} = ${fmtINR(r.p.price*r.i.qty)}`).join("<br>")}
+      </div>`;
+    }).join("")}
+    <div class="cart-summary-line"><span>Subtotal</span><span>${fmtINR(subtotal)}</span></div>
+    <div class="cart-summary-line"><span>Delivery (${sellerCount} seller${sellerCount>1?'s':''})</span><span>${fmtINR(deliveryFee)}</span></div>
+    <div class="cart-summary-line total"><span>Total</span><span>${fmtINR(total)}</span></div>
+    <p style="font-size:13px;margin-top:12px;"><b>📍 Delivery:</b> ${escapeHtml(checkoutState.location.address)}</p>
+    <p style="font-size:13px;"><b>💳 Payment:</b> ${checkoutState.paymentMethod}</p>
+    ${checkoutState.paymentMethod==="UPI" ? renderUpiQrBlock(bySeller, total, sellerCount) : ""}
+    <div class="modal-foot" style="margin:16px -22px -20px;">
+      <button class="btn btn-ghost" onclick="checkoutState.step=2; renderCheckoutModal()">← Back</button>
+      <button class="btn btn-orange" onclick="placeOrder()">✅ Place Order</button>
+    </div>
+  `;
+  if(checkoutState.paymentMethod==="UPI") setTimeout(()=>renderAllQrCodes(bySeller, sellerCount), 50);
+}
+function renderUpiQrBlock(bySeller, total, sellerCount){
+  return Object.keys(bySeller).map((sellerId,idx)=>{
+    const seller = DB.sellers.find(s=>s.id===sellerId);
+    const items = bySeller[sellerId];
+    const amount = items.reduce((s,r)=>s+r.p.price*r.i.qty,0) + CONFIG.DELIVERY_FEE;
+    return `<div class="qr-wrap" style="border:1px dashed var(--border);border-radius:12px;margin-top:10px;padding:14px;">
+      <div style="font-size:12.5px;color:var(--muted);">Pay ${escapeHtml(seller.name)} (${escapeHtml(seller.farmName)})</div>
+      <div class="upi-amount">${fmtINR(amount)}</div>
+      <div id="qrcodeBox-${sellerId}"></div>
+      <div style="font-size:12px;color:var(--muted);">UPI ID: <b>${escapeHtml(seller.upiId)}</b></div>
+      <a class="btn btn-outline btn-sm" href="upi://pay?pa=${encodeURIComponent(seller.upiId)}&pn=${encodeURIComponent(seller.name)}&am=${amount}&cu=INR&tn=FarmDirect%20Order">Open UPI App</a>
+    </div>`;
+  }).join("");
+}
+function renderAllQrCodes(bySeller){
+  Object.keys(bySeller).forEach(sellerId=>{
+    const seller = DB.sellers.find(s=>s.id===sellerId);
+    const items = bySeller[sellerId];
+    const amount = items.reduce((s,r)=>s+r.p.price*r.i.qty,0) + CONFIG.DELIVERY_FEE;
+    const el = document.getElementById("qrcodeBox-"+sellerId);
+    if(el && typeof QRCode !== "undefined"){
+      el.innerHTML = "";
+      const uri = `upi://pay?pa=${encodeURIComponent(seller.upiId)}&pn=${encodeURIComponent(seller.name)}&am=${amount}&cu=INR&tn=FarmDirectOrder`;
+      new QRCode(el, { text: uri, width: 150, height: 150, colorDark:"#123524", colorLight:"#ffffff" });
+    }
+  });
+}
+
+function placeOrder(){
+  const c = currentCustomer();
+  const cart = getCart();
+  const rows = cart.map(i=>{ const p = DB.products.find(x=>x.id===i.productId); return {p,i}; }).filter(r=>r.p && r.p.status==="active");
+  // final stock validation — never allow purchase that would drop stock to 0 or below
+  for(const r of rows){
+    if(r.i.qty >= r.p.stock){ toast("Stock changed for " + r.p.name + " — please review your cart.", true); renderCustomerCart(); closeModal(); return; }
+  }
+  const bySeller = {};
+  rows.forEach(r=>{ (bySeller[r.p.sellerId]=bySeller[r.p.sellerId]||[]).push(r); });
+
+  const createdOrders = [];
+  Object.entries(bySeller).forEach(([sellerId, items])=>{
+    const seller = DB.sellers.find(s=>s.id===sellerId);
+    const subtotal = items.reduce((s,r)=>s+r.p.price*r.i.qty,0);
+    const order = {
+      id: uid("ORD"),
+      customerId: c.id, customerName: c.name, customerPhone: c.phone, customerEmail: c.email,
+      sellerId: seller.id, sellerName: seller.name,
+      items: items.map(r=>({productId:r.p.id, name:r.p.name, unit:r.p.unit, qty:r.i.qty, price:r.p.price, subtotal:r.p.price*r.i.qty})),
+      subtotal, deliveryFee: CONFIG.DELIVERY_FEE, total: subtotal + CONFIG.DELIVERY_FEE,
+      deliveryLocation: {...checkoutState.location},
+      sellerLocation: {...seller.location},
+      paymentMethod: checkoutState.paymentMethod,
+      status: "Order Placed",
+      statusHistory: [{status:"Order Placed", at: Date.now()}],
+      date: Date.now()
+    };
+    // decrement stock, enforcing stock >= 1 at all times
+    items.forEach(r=>{
+      const prod = DB.products.find(x=>x.id===r.p.id);
+      const newStock = prod.stock - r.i.qty;
+      prod.stock = Math.max(1, newStock);
+      prod.salesCount += r.i.qty;
+    });
+    DB.orders.unshift(order);
+    createdOrders.push(order);
+  });
+  persist("products"); persist("orders");
+  setCart([]);
+  closeModal();
+  toast("Order placed! " + createdOrders.length + " order(s) created.");
+  customerNav("orders");
+}
+
+function renderCustomerOrders(){
+  const c = currentCustomer();
+  const orders = DB.orders.filter(o=>o.customerId===c.id).sort((a,b)=>b.date-a.date);
+  document.getElementById("view-c-orders").innerHTML = `
+    <div class="page-head"><div><h1>${t('myOrdersHead')}</h1><p>${orders.length} orders</p></div></div>
+    ${orders.length===0 ? `<div class="empty-state"><div class="big">📦</div>No orders yet. <a onclick="customerNav('shop')" style="color:var(--green);font-weight:700;cursor:pointer;">Start shopping</a></div>` :
+    orders.map(o=>`
+      <div class="panel">
+        <div class="panel-head">
+          <div><b>${o.id}</b> <span style="color:var(--muted);font-size:12.5px;">· ${fmtDateTime(o.date)} · ${escapeHtml(o.sellerName)}</span></div>
+          ${statusPill(o.status)}
+        </div>
+        <p style="font-size:13.5px;margin:4px 0;">${o.items.map(i=>escapeHtml(i.name)+" × "+i.qty+i.unit).join(", ")}</p>
+        ${renderTrackTimeline(o)}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <span style="font-size:13px;color:var(--muted);">📍 ${escapeHtml(o.deliveryLocation.address)}</span>
+          <b>${fmtINR(o.total)}</b>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <a class="btn btn-outline btn-sm" target="_blank" href="https://www.google.com/maps/dir/?api=1&origin=${o.sellerLocation?o.sellerLocation.lat:''},${o.sellerLocation?o.sellerLocation.lng:''}&destination=${o.deliveryLocation.lat},${o.deliveryLocation.lng}">🚚 Open Route in Google Maps</a>
+          ${canCancelOrder(o) ? `<button class="btn btn-danger btn-sm" onclick="cancelCustomerOrder('${o.id}')">✕ Cancel Order</button>` : ""}
+        </div>
+      </div>
+    `).join("")}
+  `;
+}
+// A buyer can cancel their own order any time before it's out for delivery.
+// Once it's out for delivery, delivered, or already cancelled, cancelling is no longer allowed.
+function canCancelOrder(o){
+  return o.status !== "Out for Delivery" && o.status !== "Delivered" && o.status !== "Cancelled";
+}
+function cancelCustomerOrder(orderId){
+  const o = DB.orders.find(x=>x.id===orderId);
+  if(!o) return;
+  if(!canCancelOrder(o)){ toast("This order can no longer be cancelled.", true); return; }
+  if(!confirm("Cancel order " + o.id + "? This cannot be undone.")) return;
+  o.status = "Cancelled";
+  o.statusHistory.push({status:"Cancelled", at: Date.now()});
+  // Return the cancelled quantities back to the seller's stock.
+  o.items.forEach(it=>{
+    const prod = DB.products.find(p=>p.id===it.productId);
+    if(prod){ prod.stock += it.qty; }
+  });
+  persist("orders"); persist("products");
+  toast("Order " + o.id + " cancelled.");
+  renderCustomerOrders();
+}
+function renderTrackTimeline(o){
+  if(o.status==="Cancelled") return `<div class="loc-result" style="color:var(--danger);background:var(--danger-light);">This order was cancelled.</div>`;
+  const curIdx = ORDER_STATUS_FLOW.indexOf(o.status);
+  return `<div class="track-line">
+    ${ORDER_STATUS_FLOW.map((s,idx)=>`<div class="track-step ${idx<curIdx?'done':idx===curIdx?'current':''}"><div class="dot">${idx<curIdx?'✓':idx+1}</div><span>${s}</span></div>`).join("")}
+  </div>`;
+}
+
+function renderCustomerLocations(){
+  const c = currentCustomer();
+  const saved = DB.savedLocations[c.id] || [];
+  document.getElementById("view-c-locations").innerHTML = `
+    <div class="page-head"><div><h1>${t('myDeliveryLocationsHead')}</h1></div></div>
+    <div class="panel">
+      <div class="loc-result">🏠 <b>Home</b> — ${escapeHtml(c.location.address)}</div>
+      ${saved.map((l,idx)=>`<div class="loc-result" style="margin-top:8px;">📍 <b>${escapeHtml(l.label)}</b> — ${escapeHtml(l.address)} <button class="btn btn-ghost btn-sm" onclick="removeSavedLocation(${idx})" style="float:right;">Remove</button></div>`).join("")}
+    </div>
+    <p style="color:var(--muted);font-size:13px;">Add more delivery addresses from the checkout map picker — they'll appear here for next time.</p>
+  `;
+}
+function removeSavedLocation(idx){
+  const c = currentCustomer();
+  DB.savedLocations[c.id].splice(idx,1); persist("savedLocations");
+  renderCustomerLocations();
+}
+
+function renderCustomerPayments(){
+  const c = currentCustomer();
+  const orders = DB.orders.filter(o=>o.customerId===c.id).sort((a,b)=>b.date-a.date);
+  document.getElementById("view-c-paymentsC").innerHTML = `
+    <div class="page-head"><div><h1>${t('paymentsHead')}</h1></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Order</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody>
+    ${orders.map(o=>`<tr><td>${o.id}</td><td>${o.paymentMethod}</td><td>${fmtINR(o.total)}</td><td>${fmtDate(o.date)}</td><td>${statusPill(o.status)}</td></tr>`).join("") || `<tr><td colspan="5"><div class="empty-state">No payments yet.</div></td></tr>`}
+    </tbody></table></div>
+  `;
+}
+
+function renderCustomerWishlist(){
+  const ids = getWishlist();
+  const items = ids.map(id=>DB.products.find(p=>p.id===id)).filter(p=>p && p.status==="active");
+  document.getElementById("view-c-wishlist").innerHTML = `
+    <div class="page-head"><div><h1>${t('wishlistHead')}</h1><p>${items.length} saved items</p></div></div>
+    <div class="product-grid" id="wishlistGrid"></div>
+  `;
+  renderProductCards(items, "wishlistGrid");
+}
+
+function renderCustomerProfile(){
+  const c = currentCustomer();
+  document.getElementById("view-c-profileC").innerHTML = `
+    <div class="page-head"><div><h1>${t('myProfileHead')}</h1></div></div>
+    <div class="panel" style="max-width:520px;">
+      <div class="field"><label>Full Name</label><input id="cpName" value="${escapeHtml(c.name)}"></div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input id="cpPhone" value="${escapeHtml(c.phone)}"></div>
+        <div class="field"><label>Email</label><input id="cpEmail" value="${escapeHtml(c.email)}"></div>
+      </div>
+      <div class="field"><label>Default Address</label><input id="cpAddr" value="${escapeHtml(c.location.address)}"></div>
+      <button class="btn btn-primary" onclick="saveCustomerProfile()">Save Profile</button>
+    </div>
+  `;
+}
+function saveCustomerProfile(){
+  const c = currentCustomer();
+  c.name = document.getElementById("cpName").value.trim();
+  c.phone = document.getElementById("cpPhone").value.trim();
+  c.email = document.getElementById("cpEmail").value.trim();
+  c.location.address = document.getElementById("cpAddr").value.trim();
+  persist("customers");
+  document.getElementById("customerAvatar").textContent = c.name.charAt(0).toUpperCase();
+  toast("Profile updated");
+}
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+function init(){
+  populateLangSelects();
+  applyStaticI18n();
+  seedDatabaseIfNeeded();
+  document.getElementById("statSellersCount").textContent = DB.sellers.length + "+";
+  document.getElementById("statProductsCount").textContent = DB.products.filter(p=>p.status==="active").length + "+";
+  document.getElementById("statOrdersCount").textContent = DB.orders.length + "+";
+  setAuthPortal("seller");
+
+  if(session && session.type==="seller" && currentSeller()){ enterApp(); return; }
+  if(session && session.type==="customer" && currentCustomer()){ enterApp(); return; }
+  session = null;
+}
+init();
+</script>
+</body>
+</html>
